@@ -27,40 +27,284 @@
     <main class="page">
         <div class="page-inner">
             <div class="card">
-                <h2>Расписание</h2>
+                <h2>Расписание занятий</h2>
                 
-                <div class="modeus-notice" style="background: #fff3cd; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px;">
-                    <strong>Важно:</strong> Для просмотра расписания необходимо войти в систему Modeus. 
-                    Если iframe не загружается, используйте кнопку ниже.
+                <!-- Статус авторизации -->
+                <div id="auth-status" style="margin-bottom: 15px;"></div>
+                
+                <!-- Кнопка входа -->
+                <div id="login-section" style="margin-bottom: 15px; display: none;">
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; text-align: center;">
+                        <p style="margin: 0 0 10px 0;"><strong>Для загрузки расписания:</strong></p>
+                        <p style="margin: 0 0 15px 0; font-size: 14px;">Войдите в систему Modeus</p>
+                        <button onclick="loginToModeus()" style="padding: 12px 24px; background: #4a76a8; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer;">
+                            🔐 Войти в Modeus
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Переключатель режимов -->
+                <div style="margin-bottom: 15px; display: flex; gap: 0;">
+                    <button onclick="showMode('iframe')" id="mode-iframe" style="flex: 1; padding: 12px; background: #4a76a8; color: white; border: none; border-radius: 8px 0 0 8px; font-size: 14px;">🌐 Modeus</button>
+                    <button onclick="showMode('parsed')" id="mode-parsed" style="flex: 1; padding: 12px; background: #6c757d; color: white; border: none; border-radius: 0 8px 8px 0; font-size: 14px;">📋 Данные</button>
                 </div>
 
-                <div class="modeus-iframe-wrapper" style="margin-bottom: 15px;">
-                    <div class="modeus-loading" id="loading" style="text-align: center; padding: 20px;">
-                        <span>Загрузка расписания...</span>
-                    </div>
+                <!-- Режим iframe -->
+                <div id="view-iframe" style="display: block;">
                     <iframe 
-                        src="{{ modeus_embed_url }}" 
+                        id="modeus-iframe"
+                        src="" 
                         title="Расписание Modeus"
-                        style="width: 100%; height: 500px; border: none; border-radius: 8px;"
-                        allow="clipboard-write; fullscreen"
-                        onload="document.getElementById('loading').style.display = 'none';"
-                        onerror="this.style.display = 'none'; document.getElementById('loading').style.display = 'none'; document.getElementById('schedule-fallback').style.display = 'block';">
+                        style="width: 100%; height: 500px; border: none; border-radius: 8px;">
                     </iframe>
-                    <div id="schedule-fallback" style="display: none; text-align: center; padding: 20px; background: #f8f9fa; border-radius: 8px;">
-                        <p style="color: #666;">Не удалось загрузить расписание в iframe</p>
+                    <div style="margin-top: 15px; display: flex; gap: 10px;">
+                        <a href="{{ modeus_url }}" target="_blank" style="flex: 1; display: block; padding: 12px; background: #4a76a8; color: white; text-align: center; text-decoration: none; border-radius: 8px;">
+                            ↗ Открыть в новом окне
+                        </a>
+                        <button onclick="saveScheduleFromIframe()" style="flex: 1; padding: 12px; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer;">
+                            💾 Сохранить расписание
+                        </button>
                     </div>
+                    <p style="margin-top: 10px; font-size: 12px; color: #666; text-align: center;">
+                        После загрузки расписания нажмите "Сохранить" для извлечения данных
+                    </p>
                 </div>
 
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <a href="{{ modeus_url }}" target="_blank" style="flex: 1; display: inline-block; padding: 12px 20px; background: #4a76a8; color: white; text-align: center; border-radius: 8px; text-decoration: none; font-size: 16px;">
-                        ↗ Открыть в Modeus
-                    </a>
-                    <button onclick="location.reload()" style="padding: 12px 20px; background: #6c757d; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer;">
-                        Обновить
-                    </button>
+                <!-- Режим данных (статическое расписание) -->
+                <div id="view-parsed" style="display: none;">
+                    <div id="schedule-loading" style="text-align: center; padding: 20px; color: #666;">
+                        Загрузка расписания...
+                    </div>
+                    <div id="schedule-data"></div>
+                    
+                    <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #dee2e6;">
+                        <a href="{{ modeus_url }}" target="_blank" style="display: block; padding: 12px; background: #4a76a8; color: white; text-align: center; text-decoration: none; border-radius: 8px;">
+                            ↗ Открыть в Modeus
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
+
+    <script>
+        const MODEUS_URL = "{{ modeus_url }}";
+        
+        // Проверяем куки Modeus при загрузке
+        function checkModeusAuth() {
+            // Проверяем, залогинен ли пользователь
+            // Modeus обычно устанавливает куки JSESSIONID или类似的
+            const cookies = document.cookie;
+            const isLoggedIn = cookies.includes('JSESSIONID') || cookies.includes('modeus');
+            
+            const loginSection = document.getElementById('login-section');
+            const authStatus = document.getElementById('auth-status');
+            
+            if (isLoggedIn) {
+                authStatus.innerHTML = '<div style="background: #d4edda; padding: 10px; border-radius: 8px;">✅ Сессия Modeus обнаружена</div>';
+                loginSection.style.display = 'none';
+                // Пробуем загрузить расписание
+                loadScheduleFromModeus();
+            } else {
+                authStatus.innerHTML = '';
+                loginSection.style.display = 'block';
+                // Показываем статическое расписание
+                loadStaticSchedule();
+            }
+        }
+        
+        // Вход в Modeus
+        function loginToModeus() {
+            // Открываем Modeus в новом окне
+            const width = 600;
+            const height = 700;
+            const left = (screen.width - width) / 2;
+            const top = (screen.height - height) / 2;
+            
+            window.open(MODEUS_URL, 'modeus-login', `width=${width},height=${height},left=${left},top=${top}`);
+            
+            // Периодически проверяем куки после закрытия окна
+            setTimeout(() => {
+                checkModeusAuth();
+            }, 3000);
+        }
+        
+        // Загрузка расписания из Modeus (через iframe)
+        function loadScheduleFromModeus() {
+            const iframe = document.getElementById('modeus-iframe');
+            // URL для просмотра расписания
+            iframe.src = "{{ modeus_embed_url }}";
+        }
+        
+        // Загрузка статического расписания
+        async function loadStaticSchedule() {
+            try {
+                const response = await fetch('/data/schedule_static.json');
+                if (response.ok) {
+                    const data = await response.json();
+                    displaySchedule(data);
+                } else {
+                    document.getElementById('schedule-data').innerHTML = 
+                        '<p style="color: #666; text-align: center;">Расписание не загружено</p>';
+                }
+            } catch(e) {
+                console.error('Error loading schedule:', e);
+                document.getElementById('schedule-data').innerHTML = 
+                    '<p style="color: #666; text-align: center;">Ошибка загрузки расписания</p>';
+            }
+            document.getElementById('schedule-loading').style.display = 'none';
+        }
+        
+        // Отображение расписания
+        function displaySchedule(data) {
+            let html = '';
+            
+            for (const [week, days] of Object.entries(data)) {
+                html += `<h3 style="color: #4a76a8; margin: 15px 0 10px 0;">${week === 'week_1' ? 'Нечётная неделя' : 'Чётная неделя'}</h3>`;
+                
+                for (const [day, dayData] of Object.entries(days)) {
+                    const dayDate = dayData && dayData.date ? dayData.date : '';
+                    const lessons = dayData && dayData.lessons ? dayData.lessons : [];
+                    
+                    html += `<h4 style="color: #333; margin: 15px 0 10px 0;">${day} <span style="color: #666; font-weight: normal; font-size: 12px;">${dayDate ? '(' + dayDate + ')' : ''}</span></h4>`;
+                    
+                    // Всего 7 пар в день
+                    const totalPairs = 7;
+                    
+                    // Создаём карту существующих пар
+                    const pairNumbers = {
+                        '08:00': 1, '8:00': 1,
+                        '09:50': 2, '9:50': 2,
+                        '11:55': 3, '11:55': 3,
+                        '13:45': 4, '13:45': 4,
+                        '15:50': 5, '15:50': 5,
+                        '17:35': 6, '17:35': 6,
+                        '19:15': 7, '19:15': 7
+                    };
+                    
+                    function getPairNum(timeStr) {
+                        if (!timeStr) return 0;
+                        const startTime = timeStr.split(' - ')[0];
+                        return pairNumbers[startTime] || 0;
+                    }
+                    
+                    const lessonMap = {};
+                    for (const lesson of lessons) {
+                        const pairNum = getPairNum(lesson.time);
+                        if (pairNum) lessonMap[pairNum] = lesson;
+                    }
+                    
+                    for (let pairNum = 1; pairNum <= totalPairs; pairNum++) {
+                        const lesson = lessonMap[pairNum];
+                        
+                        if (lesson) {
+                            html += `
+                            <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                                <div style="font-weight: bold; color: #333;">${lesson.time || ''}</div>
+                                <div style="font-size: 16px; margin: 5px 0;">${lesson.subject || ''}</div>
+                                <div style="color: #666; font-size: 14px;">
+                                    ${lesson.type || ''}
+                                    ${lesson.teacher ? ' · ' + lesson.teacher : ''}
+                                    ${lesson.room ? ' · ' + lesson.room : ''}
+                                </div>
+                            </div>`;
+                        } else {
+                            // Пустой блок для пар без занятий
+                            html += `
+                            <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px; text-align: center; color: #999; border: 1px dashed #dee2e6;">
+                                <div style="font-weight: bold;">${pairNum}</div>
+                                <div style="font-size: 12px;">—</div>
+                            </div>`;
+                        }
+                    }
+                }
+            }
+            
+            if (!html) {
+                html = '<p style="color: #666; text-align: center;">Расписание пустое</p>';
+            }
+            
+            document.getElementById('schedule-data').innerHTML = html;
+        }
+        
+        // Переключение режимов
+        function showMode(mode) {
+            document.getElementById('view-iframe').style.display = mode === 'iframe' ? 'block' : 'none';
+            document.getElementById('view-parsed').style.display = mode === 'parsed' ? 'block' : 'none';
+            document.getElementById('mode-iframe').style.background = mode === 'iframe' ? '#4a76a8' : '#6c757d';
+            document.getElementById('mode-parsed').style.background = mode === 'parsed' ? '#4a76a8' : '#6c757d';
+            
+            localStorage.setItem('scheduleMode', mode);
+            
+            if (mode === 'parsed') {
+                loadStaticSchedule();
+            }
+        }
+        
+        // Сохранение расписания из iframe
+        function saveScheduleFromIframe() {
+            const iframe = document.getElementById('modeus-iframe');
+            try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                
+                // Пробуем найти данные расписания
+                // Modeus может хранить данные в различных элементах
+                const scheduleData = parseScheduleFromHTML(iframeDoc.body.innerHTML);
+                
+                if (scheduleData && Object.keys(scheduleData).length > 0) {
+                    // Сохраняем на сервер
+                    fetch('/api/save-schedule', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(scheduleData)
+                    })
+                    .then(r => r.json())
+                    .then(result => {
+                        if (result.success) {
+                            alert('✅ Расписание сохранено! Переключитесь на режим "Данные" для просмотра.');
+                            showMode('parsed');
+                        } else {
+                            alert('Ошибка сохранения: ' + result.error);
+                        }
+                    })
+                    .catch(e => {
+                        alert('Ошибка: ' + e);
+                    });
+                } else {
+                    alert('Не удалось извлечь данные. Убедитесь, что расписание загружено в iframe.');
+                }
+            } catch(e) {
+                console.error('Error:', e);
+                alert('Не удалось получить доступ к iframe. Возможно, Modeus блокирует доступ.');
+            }
+        }
+        
+        // Парсинг HTML расписания
+        function parseScheduleFromHTML(html) {
+            const result = {week_1: {}, week_2: {}};
+            
+            // Попробуем найти названия дней
+            const days = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+            
+            // Простой парсинг - ищем время и названия
+            const timeRegex = /(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2})/g;
+            
+            // Ищем названия предметов (обычно в определённых тегах)
+            const subjectRegex = /([А-Яа-яёЁ\s]+(?:лекция|семинар|практика|лабораторная))/gi;
+            
+            // Это упрощённый парсинг - нужен реальный формат Modeus
+            // Пока возвращаем пустую структуру как заглушку
+            console.log('HTML length:', html.length);
+            
+            return result;
+        }
+        
+        // Восстановление режима
+        const savedMode = localStorage.getItem('scheduleMode') || 'iframe';
+        showMode(savedMode);
+        
+        // Проверка авторизации при загрузке
+        checkModeusAuth();
+    </script>
 </body>
 </html>

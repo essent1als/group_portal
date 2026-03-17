@@ -21,12 +21,12 @@
                 <a href="{{ url_for('schedule_page') }}" class="nav-small">Расписание</a>
                 <a href="{{ url_for('announcements_page') }}">Объявления</a>
             </nav>
-            </nav>
         </div>
     </header>
 
     <main class="page">
         <div class="page-inner">
+            
             <div class="card">
                 <div class="schedule-container">
                     <div class="schedule-header">
@@ -42,25 +42,14 @@
                         </span>
                     </div>
 
-                    <div class="modeus-notice">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="16" x2="12" y2="12"></line>
-                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                        </svg>
-                        <p>
-                            <strong>Важно:</strong> Для просмотра расписания необходимо войти в систему Modeus. 
-                            Если iframe не загружается, нажмите кнопку "Открыть в Modeus" ниже и войдите в свой аккаунт.
-                            Расписание одинаковое для всей группы.
-                        </p>
-                    </div>
-
+                    <!-- Переключатель режимов -->
                     <div class="schedule-tabs">
-                        <button class="schedule-tab active" data-view="modeus">Modeus</button>
+                        <button class="schedule-tab active" onclick="showMode('iframe')" id="mode-iframe">🌐 Modeus</button>
+                        <button class="schedule-tab" onclick="showMode('parsed')" id="mode-parsed">📋 Данные</button>
                     </div>
 
-                    <!-- Modeus iframe -->
-                    <div class="schedule-view active" id="modeus-view">
+                    <!-- Режим iframe -->
+                    <div class="schedule-view active" id="view-iframe">
                         <div class="schedule-actions">
                             <a href="{{ modeus_url }}" target="_blank" class="btn-schedule btn-schedule--primary">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -70,14 +59,6 @@
                                 </svg>
                                 Открыть в Modeus
                             </a>
-                            <button class="btn-schedule btn-schedule--secondary" onclick="location.reload()">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="23 4 23 10 17 10"></polyline>
-                                    <polyline points="1 20 1 14 7 14"></polyline>
-                                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-                                </svg>
-                                Обновить
-                            </button>
                         </div>
                         <div class="modeus-iframe-wrapper">
                             <div class="modeus-loading" id="loading">
@@ -85,11 +66,31 @@
                                 <span>Загрузка расписания...</span>
                             </div>
                             <iframe 
+                                id="modeus-iframe"
                                 src="{{ modeus_embed_url }}" 
                                 title="Расписание Modeus"
                                 allow="clipboard-write; fullscreen"
                                 onload="document.getElementById('loading').style.display = 'none';"
                             ></iframe>
+                        </div>
+                    </div>
+
+                    <!-- Режим данных (статическое расписание) -->
+                    <div class="schedule-view" id="view-parsed" style="display: none;">
+                        <div id="schedule-loading" style="text-align: center; padding: 20px; color: #666;">
+                            Загрузка расписания...
+                        </div>
+                        <div id="schedule-data"></div>
+                        
+                        <div class="schedule-actions" style="margin-top: 20px; border-top: 1px solid #dee2e6; padding-top: 15px;">
+                            <a href="{{ modeus_url }}" target="_blank" class="btn-schedule btn-schedule--primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                    <polyline points="15 3 21 3 21 9"></polyline>
+                                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                                </svg>
+                                Открыть в Modeus
+                            </a>
                         </div>
                     </div>
 
@@ -99,10 +100,171 @@
     </main>
 
     <footer class="site-footer">
-        <p>Сайт на Flask · Расписание с <a href="https://sfedu.modeus.org" target="_blank" style="color: rgba(255,255,255,0.8); text-decoration: underline;">Modeus</a></p>
+        <p>Сайт портала группы · <a href="https://sfedu.modeus.org" target="_blank" style="color: rgba(255,255,255,0.8);">Modeus</a></p>
     </footer>
 
     <script>
+        const MODEUS_URL = "{{ modeus_url }}";
+        
+        // Переключение режимов
+        function showMode(mode) {
+            document.getElementById('view-iframe').style.display = mode === 'iframe' ? 'block' : 'none';
+            document.getElementById('view-parsed').style.display = mode === 'parsed' ? 'block' : 'none';
+            
+            document.getElementById('mode-iframe').classList.toggle('active', mode === 'iframe');
+            document.getElementById('mode-parsed').classList.toggle('active', mode === 'parsed');
+            
+            localStorage.setItem('scheduleMode', mode);
+            
+            if (mode === 'parsed') {
+                loadStaticSchedule();
+            }
+        }
+        
+        // Загрузка статического расписания
+        async function loadStaticSchedule() {
+            try {
+                const response = await fetch('/data/schedule_static.json');
+                if (response.ok) {
+                    const data = await response.json();
+                    displaySchedule(data);
+                } else {
+                    document.getElementById('schedule-data').innerHTML = 
+                        '<p style="color: #666; text-align: center; padding: 20px;">Расписание не загружено</p>';
+                }
+            } catch(e) {
+                console.error('Error loading schedule:', e);
+                document.getElementById('schedule-data').innerHTML = 
+                    '<p style="color: #666; text-align: center; padding: 20px;">Ошибка загрузки расписания</p>';
+            }
+            document.getElementById('schedule-loading').style.display = 'none';
+        }
+        
+        // Отображение расписания
+        function displaySchedule(data) {
+            // Карта типов занятий к цветам
+            const typeColors = {
+                'Практика': '#cfeafc',    // голубой
+                'Лекция': '#dcedc8',      // салатовый
+                'Лабораторная': '#ffe0b2' // оранжевый
+            };
+            
+            const typeBorderColors = {
+                'Практика': '#bbdefb',
+                'Лекция': '#d3e8bc',
+                'Лабораторная': '#f7d7a6'
+            };
+            
+            // Карта времени начала пары -> номер пары
+            const pairNumbers = {
+                '08:00': 1, '8:00': 1,
+                '09:50': 2, '9:50': 2,
+                '11:55': 3, '11:55': 3,
+                '13:45': 4, '13:45': 4,
+                '15:50': 5, '15:50': 5,
+                '17:35': 6, '17:35': 6,
+                '19:15': 7, '19:15': 7,
+                '20:55': 8, '20:55': 8
+            };
+            
+            function getPairNumber(timeStr) {
+                if (!timeStr) return '';
+                const startTime = timeStr.split(' - ')[0];
+                return pairNumbers[startTime] || '';
+            }
+            
+            function getTypeColor(type) {
+                return typeColors[type] || '#f8f9fa';
+            }
+            
+            function getTypeBorderColor(type) {
+                return typeBorderColors[type] || '#dee2e6';
+            }
+            
+            let html = '<div style="padding: 20px;">';
+            
+            for (const [week, days] of Object.entries(data)) {
+                html += `<h3 style="color: #4a76a8; margin: 20px 0 15px 0;">${week === 'week_1' ? 'Нечётная неделя' : 'Чётная неделя'}</h3>`;
+                
+                for (const [day, dayData] of Object.entries(days)) {
+                    const dayDate = dayData && dayData.date ? dayData.date : '';
+                    const lessons = dayData && dayData.lessons ? dayData.lessons : [];
+                    
+                    html += `<h4 style="color: #333; margin: 20px 0 10px 0; font-size: 18px;">${day} <span style="color: #666; font-weight: normal; font-size: 14px;">${dayDate ? '(' + dayDate + ')' : ''}</span></h4>`;
+                    
+                    // Всего 7 пар в день
+                    const totalPairs = 7;
+                    
+                    // Создаём карту существующих пар
+                    const lessonMap = {};
+                    for (const lesson of lessons) {
+                        const pairNum = getPairNumber(lesson.time);
+                        if (pairNum) lessonMap[pairNum] = lesson;
+                    }
+                    
+                    // Горизонтальные кубики - показываем все пары
+                    html += '<div style="display: flex; flex-wrap: nowrap; gap: 8px; overflow-x: auto; justify-content: center;">';
+                    
+                    for (let pairNum = 1; pairNum <= totalPairs; pairNum++) {
+                        const lesson = lessonMap[pairNum];
+                        
+                        if (lesson) {
+                            const bgColor = getTypeColor(lesson.type);
+                            const borderColor = getTypeBorderColor(lesson.type);
+                            
+                            html += `
+                            <div style="background: ${bgColor}; border: 2px solid ${borderColor}; border-radius: 12px; padding: 12px; width: 170px; flex-shrink: 0;">
+                                <!-- Номер пары -->
+                                <div style="background: rgba(0,0,0,0.1); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; margin-bottom: 6px;">
+                                    ${pairNum}
+                                </div>
+                                
+                                <!-- Время -->
+                                <div style="font-weight: bold; font-size: 12px; color: #333; margin-bottom: 3px;">
+                                    ${lesson.time || ''}
+                                </div>
+                                
+                                <!-- Название предмета -->
+                                <div style="font-size: 11px; color: #212529; margin-bottom: 3px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px;">
+                                    ${lesson.subject || ''}
+                                </div>
+                                
+                                <!-- Место и тип -->
+                                <div style="font-size: 10px; color: #666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    ${lesson.room ? '📍 ' + lesson.room : ''}
+                                </div>
+                                <div style="font-size: 10px; color: #888; margin-top: 2px;">
+                                    ${lesson.type || ''}
+                                </div>
+                            </div>`;
+                        } else {
+                            // Пустой блок для пар без занятий
+                            html += `
+                            <div style="background: #f8f9fa; border: 2px dashed #dee2e6; border-radius: 12px; padding: 12px; width: 170px; flex-shrink: 0; text-align: center; color: #999;">
+                                <div style="background: rgba(0,0,0,0.1); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; margin-bottom: 6px; margin-left: auto; margin-right: auto;">
+                                    ${pairNum}
+                                </div>
+                                <div style="font-size: 11px;">—</div>
+                            </div>`;
+                        }
+                    }
+                    
+                    html += '</div>';
+                }
+            }
+            
+            html += '</div>';
+            
+            if (!html.includes('div style="background:')) {
+                html = '<p style="color: #666; text-align: center; padding: 20px;">Расписание пустое. Заполните файл data/schedule_static.json</p>';
+            }
+            
+            document.getElementById('schedule-data').innerHTML = html;
+        }
+        
+        // Восстановление режима
+        const savedMode = localStorage.getItem('scheduleMode') || 'iframe';
+        showMode(savedMode);
     </script>
 </body>
 </html>

@@ -53,46 +53,28 @@
                 <!-- Расписание на сегодня -->
                 <section class="card">
                     <h2>Расписание на сегодня</h2>
-                    <div style="margin-bottom: 12px;">
-                        <iframe 
-                            id="today-schedule-iframe"
-                            title="Расписание Modeus"
-                            style="width: 100%; height: 300px; border: none; border-radius: 8px;"
-                            onload="this.parentElement.querySelector('.schedule-fallback').style.display = 'none';">
-                        </iframe>
-                        <div class="schedule-fallback" style="display: none;">
-                            <p style="color: #666; font-size: 14px;">Не удалось загрузить расписание</p>
-                        </div>
-                    </div>
-                    <p><a href="{{ url_for('schedule_page') }}">↗ Полное расписание</a></p>
-                    <script>
-                        (function() {
-                            const today = new Date();
-                            const year = today.getFullYear();
-                            const month = String(today.getMonth() + 1).padStart(2, '0');
-                            const day = String(today.getDate()).padStart(2, '0');
-                            const dateStr = `${year}-${month}-${day}`;
-                            
-                            const baseUrl = 'https://sfedu.modeus.org/schedule-calendar/my';
-                            const params = new URLSearchParams({
-                                timeZone: '"Europe/Moscow"',
-                                calendar: JSON.stringify({
-                                    view: 'agendaDay',
-                                    date: dateStr
-                                }),
-                                grid: '"Grid.05"'
-                            });
-                            
-                            const iframe = document.getElementById('today-schedule-iframe');
-                            if (iframe) {
-                                iframe.src = baseUrl + '?' + params.toString();
-                                iframe.onerror = function() {
-                                    this.style.display = 'none';
-                                    this.parentElement.querySelector('.schedule-fallback').style.display = 'block';
-                                };
-                            }
-                        })();
-                    </script>
+                    
+                    {% if today_lessons %}
+                        {% for lesson in today_lessons %}
+                            <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                                <div style="font-weight: bold; color: #333;">{{ lesson.time }}</div>
+                                <div style="font-size: 16px; margin: 5px 0;">{{ lesson.subject }}</div>
+                                <div style="color: #666; font-size: 14px;">
+                                    <span>{{ lesson.type }}</span>
+                                    {% if lesson.teacher %}
+                                        <span> · {{ lesson.teacher }}</span>
+                                    {% endif %}
+                                    {% if lesson.room %}
+                                        <span> · {{ lesson.room }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="color: #666;">Занятий на сегодня нет</p>
+                    {% endif %}
+                    
+                    <p><a href="{{ url_for('schedule_page') }}" style="color: #4a76a8;">↗ Полное расписание</a></p>
                 </section>
 
                 <!-- Новости -->
