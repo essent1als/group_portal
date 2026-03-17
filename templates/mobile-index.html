@@ -16,6 +16,12 @@
                 <h1>Портал РТбо1-25</h1>
                 <img src="{{ url_for('static', filename='img/irtsu.png') }}" alt="ИРТСУ" class="header-logo">
             </div>
+            <nav class="main-nav">
+                <a href="{{ url_for('home') }}" class="active">Главная</a>
+                <a href="{{ url_for('schedule_page') }}">Расписание</a>
+                <a href="{{ url_for('links_page') }}">Ссылки</a>
+                <a href="{{ url_for('announcements_page') }}">Объявления</a>
+            </nav>
         </div>
     </header>
 
@@ -26,7 +32,7 @@
                 <h2>Объявления</h2>
                 {% if announcements %}
                     <ul class="announcement-list">
-                        {% for ann in announcements[:3] %}
+                        {% for ann in announcements[:5] %}
                             <li class="announcement-item">
                                 <div class="announcement-meta">
                                     <span class="announcement-author">{{ ann.author }}</span>
@@ -45,12 +51,50 @@
             <!-- Расписание на сегодня -->
             <section class="card">
                 <h2>Расписание на сегодня</h2>
+                <div style="margin-bottom: 16px;">
+                    <iframe 
+                        id="today-schedule-iframe"
+                        title="Расписание Modeus"
+                        class="today-schedule-iframe"
+                    ></iframe>
+                </div>
                 <p><a href="{{ url_for('schedule_page') }}">↗ Полное расписание</a></p>
+                <script>
+                    (function() {
+                        const today = new Date();
+                        const year = today.getFullYear();
+                        const month = String(today.getMonth() + 1).padStart(2, '0');
+                        const day = String(today.getDate()).padStart(2, '0');
+                        const dateStr = `${year}-${month}-${day}`;
+                        
+                        const baseUrl = 'https://sfedu.modeus.org/schedule-calendar/my';
+                        const params = new URLSearchParams({
+                            timeZone: '"Europe/Moscow"',
+                            calendar: JSON.stringify({
+                                view: 'agendaDay',
+                                date: dateStr
+                            }),
+                            grid: '"Grid.05"'
+                        });
+                        
+                        document.getElementById('today-schedule-iframe').src = baseUrl + '?' + params.toString();
+                    })();
+                </script>
             </section>
 
             <!-- Новости -->
             <section class="card card--large vk-news-section">
-                <h2>Новости</h2>
+                <div class="vk-news-title-row">
+                    <div class="vk-group-list-inline">
+                        <button class="vk-group-btn active" data-group-id="66692771" data-group-name="ИРТСУ" data-group-avatar="https://sun9-61.userapi.com/s/v1/ig2/K4Iit0A3L_SPSoBoRSLhoUsDkr4G9kEb9gmzdNhIe2zPajJMeKDs9es9fx7tqzPXjipUo2G7wm3716wNN9PdpmS7.jpg?quality=96&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,476x476&from=bu&cs=476x0">ИРТСУ</button>
+                    </div>
+                    <h2 style="text-align: center;">Новости</h2>
+                </div>
+                <div class="vk-news-header">
+                    <img src="https://sun9-61.userapi.com/s/v1/ig2/K4Iit0A3L_SPSoBoRSLhoUsDkr4G9kEb9gmzdNhIe2zPajJMeKDs9es9fx7tqzPXjipUo2G7wm3716wNN9PdpmS7.jpg?quality=96&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,476x476&from=bu&cs=476x0" alt="Логотип группы" class="vk-group-avatar">
+                    <span class="vk-group-name">Новости ВК</span>
+                </div>
+                <div class="vk-news-widget-container" id="vk-news-widget" role="region" aria-label="Новости ВКонтакте"></div>
             </section>
 
             <!-- Полезные ссылки -->
@@ -58,8 +102,8 @@
                 <section class="card">
                     <h2>Полезные ссылки</h2>
                     <ul class="link-list">
-                        {% for link in links[:5] %}
-                            <li><a href="{{ link.url }}" target="_blank">{{ link.name }}</a></li>
+                        {% for link in links %}
+                            <li><a href="{{ link.url }}" target="_blank" rel="noopener noreferrer">{{ link.name }}</a></li>
                         {% endfor %}
                     </ul>
                 </section>
@@ -70,7 +114,7 @@
                 <section class="card">
                     <h2>Список группы</h2>
                     <ul class="members">
-                        {% for person in group[:10] %}
+                        {% for person in group %}
                             <li class="member">
                                 {% if person.avatar %}
                                     <img class="member__avatar" src="{{ person.avatar }}" alt="{{ person.name }}">
@@ -85,13 +129,5 @@
             {% endif %}
         </div>
     </main>
-
-    <!-- Мобильная навигация внизу -->
-    <nav class="nav-bottom">
-        <a href="{{ url_for('home') }}" class="active">Главная</a>
-        <a href="{{ url_for('schedule_page') }}">Расписание</a>
-        <a href="{{ url_for('links_page') }}">Ссылки</a>
-        <a href="{{ url_for('announcements_page') }}">Объявления</a>
-    </nav>
 </body>
 </html>

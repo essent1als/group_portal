@@ -16,6 +16,12 @@
                 <h1>Полезные ссылки</h1>
                 <img src="{{ url_for('static', filename='img/irtsu.png') }}" alt="ИРТСУ" class="header-logo">
             </div>
+            <nav class="main-nav">
+                <a href="{{ url_for('home') }}">Главная</a>
+                <a href="{{ url_for('schedule_page') }}">Расписание</a>
+                <a href="{{ url_for('links_page') }}" class="active">Ссылки</a>
+                <a href="{{ url_for('announcements_page') }}">Объявления</a>
+            </nav>
         </div>
     </header>
 
@@ -37,13 +43,5 @@
             </div>
         </div>
     </main>
-
-    <!-- Мобильная навигация внизу -->
-    <nav class="nav-bottom">
-        <a href="{{ url_for('home') }}">Главная</a>
-        <a href="{{ url_for('schedule_page') }}">Расписание</a>
-        <a href="{{ url_for('links_page') }}" class="active">Ссылки</a>
-        <a href="{{ url_for('announcements_page') }}">Объявления</a>
-    </nav>
 </body>
 </html>

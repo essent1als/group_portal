@@ -16,6 +16,12 @@
                 <h1>Объявления</h1>
                 <img src="{{ url_for('static', filename='img/irtsu.png') }}" alt="ИРТСУ" class="header-logo">
             </div>
+            <nav class="main-nav">
+                <a href="{{ url_for('home') }}">Главная</a>
+                <a href="{{ url_for('schedule_page') }}">Расписание</a>
+                <a href="{{ url_for('links_page') }}">Ссылки</a>
+                <a href="{{ url_for('announcements_page') }}" class="active">Объявления</a>
+            </nav>
         </div>
     </header>
 
@@ -51,14 +57,6 @@
             </div>
         </div>
     </main>
-
-    <!-- Мобильная навигация внизу -->
-    <nav class="nav-bottom">
-        <a href="{{ url_for('home') }}">Главная</a>
-        <a href="{{ url_for('schedule_page') }}">Расписание</a>
-        <a href="{{ url_for('links_page') }}">Ссылки</a>
-        <a href="{{ url_for('announcements_page') }}" class="active">Объявления</a>
-    </nav>
 
     <script>
         async function addAnnouncement() {

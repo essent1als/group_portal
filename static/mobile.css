@@ -1,4 +1,4 @@
-/* Мобильная версия - одна колонка, крупнее и ближе */
+/* Мобильная версия - крупнее и ближе */
 
 /* Основной контейнер */
 .page-inner {
@@ -32,28 +32,33 @@
     font-size: 1.3rem;
 }
 
-/* Навигация - горизонтальная полоса внизу */
+/* Навигация - горизонтально сверху */
 .main-nav {
     display: flex;
     justify-content: space-around;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: #fff;
+    padding: 10px 5px;
+    background: #f8f9fa;
     border-top: 1px solid #dee2e6;
-    padding: 8px 5px;
-    z-index: 1000;
+    margin-top: 10px;
 }
 
 .main-nav a {
     padding: 8px 12px;
     font-size: 14px;
+    text-decoration: none;
+    color: #4a76a8;
+}
+
+.main-nav a.active {
+    font-weight: bold;
+    color: #2d4a6a;
+    background: #e9ecef;
+    border-radius: 4px;
 }
 
 /* Отступ для контента */
 .page {
-    padding-bottom: 60px;
+    padding-bottom: 20px;
 }
 
 /* Карточки */
@@ -129,30 +134,4 @@
 .vk-group-btn {
     padding: 8px 12px;
     font-size: 14px;
-}
-
-/* Мобильная навигация внизу страниц */
-.nav-bottom {
-    display: flex;
-    justify-content: space-around;
-    background: #fff;
-    padding: 10px;
-    border-top: 1px solid #dee2e6;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-}
-
-.nav-bottom a {
-    color: #4a76a8;
-    text-decoration: none;
-    padding: 10px 16px;
-    font-size: 14px;
-}
-
-.nav-bottom a.active {
-    font-weight: bold;
-    color: #2d4a6a;
 }

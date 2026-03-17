@@ -6,6 +6,7 @@
     <title>Расписание — Портал группы</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='schedule.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile.css') }}">
 </head>
 <body>
     <header class="site-header">
@@ -17,8 +18,8 @@
             </div>
             <nav class="main-nav">
                 <a href="{{ url_for('home') }}">Главная</a>
+                <a href="{{ url_for('schedule_page') }}" class="active">Расписание</a>
                 <a href="{{ url_for('links_page') }}">Ссылки</a>
-                <a href="{{ url_for('schedule_page') }}" class="nav-small">Расписание</a>
                 <a href="{{ url_for('announcements_page') }}">Объявления</a>
             </nav>
         </div>
