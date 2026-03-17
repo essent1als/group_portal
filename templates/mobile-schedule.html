@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Расписание — Портал группы</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='schedule.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <div class="header-logo-row">
+                <img src="https://sfedu.ru/img/new_design_2020/logo.png" alt="Логотип ЮФУ" class="header-logo">
+                <h1>Расписание</h1>
+                <img src="{{ url_for('static', filename='img/irtsu.png') }}" alt="ИРТСУ" class="header-logo">
+            </div>
+        </div>
+    </header>
+
+    <main class="page">
+        <div class="page-inner">
+            <div class="card">
+                <div class="schedule-container">
+                    <p><a href="{{ modeus_url }}" target="_blank">Открыть расписание в Modeus ↗</a></p>
+                    <iframe 
+                        src="{{ modeus_embed_url }}"
+                        width="100%"
+                        height="600"
+                        frameborder="0"
+                        title="Расписание Modeus"
+                    ></iframe>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Мобильная навигация внизу -->
+    <nav class="nav-bottom">
+        <a href="{{ url_for('home') }}">Главная</a>
+        <a href="{{ url_for('schedule_page') }}" class="active">Расписание</a>
+        <a href="{{ url_for('links_page') }}">Ссылки</a>
+        <a href="{{ url_for('announcements_page') }}">Объявления</a>
+    </nav>
+</body>
+</html>

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Портал РТбо1-25</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='announcements.css') }}">
 </head>
 <body>
     <header class="site-header">
@@ -17,6 +18,7 @@
                 <a href="{{ url_for('home') }}">Главная</a>
                 <a href="{{ url_for('schedule_page') }}">Расписание</a>
                 <a href="{{ url_for('links_page') }}">Ссылки</a>
+                <a href="{{ url_for('announcements_page') }}">Объявления</a>
                 {% if group %}
                     <a href="#group" class="nav-small">Список группы</a>
                 {% endif %}
@@ -27,6 +29,32 @@
     <main class="page">
         <div class="page-inner">
             <div class="grid">
+                <!-- Левая колонка - объявления -->
+                <aside class="left-sidebar">
+                    <section class="card">
+                        <h2>Объявления</h2>
+                        {% if announcements %}
+                            <ul class="announcement-list">
+                                {% for ann in announcements[:5] %}
+                                    <li class="announcement-item">
+                                        <div class="announcement-meta">
+                                            <span class="announcement-author">{{ ann.author }}</span>
+                                            <span> · {{ ann.date }}</span>
+                                        </div>
+                                        <div class="announcement-text">{{ ann.text }}</div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            <p class="home-announcements-link">
+                                <a href="{{ url_for('announcements_page') }}">↗ Все объявления</a>
+                            </p>
+                        {% else %}
+                            <p class="home-announcements-empty">Объявлений пока нет</p>
+                        {% endif %}
+                    </section>
+                </aside>
+
+                <!-- Центральная колонка -->
                 <div class="left-column">
                     <section class="card">
                         <h2>Расписание на сегодня</h2>

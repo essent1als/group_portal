@@ -2,9 +2,11 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Объявления — Портал группы</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='announcements.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile.css') }}">
 </head>
 <body>
     <header class="site-header">
@@ -14,12 +16,6 @@
                 <h1>Объявления</h1>
                 <img src="{{ url_for('static', filename='img/irtsu.png') }}" alt="ИРТСУ" class="header-logo">
             </div>
-            <nav class="main-nav">
-                <a href="{{ url_for('home') }}">Главная</a>
-                <a href="{{ url_for('schedule_page') }}">Расписание</a>
-                <a href="{{ url_for('links_page') }}">Ссылки</a>
-                <a href="{{ url_for('announcements_page') }}" class="nav-small">Объявления</a>
-            </nav>
         </div>
     </header>
 
@@ -37,7 +33,7 @@
 
                 <!-- Список объявлений -->
                 {% if announcements %}
-                    <h3 style="margin-top: 30px; margin-bottom: 20px; color: #1a1a1a;">Все объявления</h3>
+                    <h3>Все объявления</h3>
                     <ul class="announcement-list">
                         {% for ann in announcements %}
                             <li class="announcement-item">
@@ -50,17 +46,19 @@
                         {% endfor %}
                     </ul>
                 {% else %}
-                    <p style="color: #868e96; text-align: center; padding: 40px 0;">
-                        Объявлений пока нет. Будьте первым, кто добавит!
-                    </p>
+                    <p>Объявлений пока нет. Будьте первым!</p>
                 {% endif %}
             </div>
         </div>
     </main>
 
-    <footer>
-        <p>Сайт на Flask · Доска объявлений группы РТбо1-25</p>
-    </footer>
+    <!-- Мобильная навигация внизу -->
+    <nav class="nav-bottom">
+        <a href="{{ url_for('home') }}">Главная</a>
+        <a href="{{ url_for('schedule_page') }}">Расписание</a>
+        <a href="{{ url_for('links_page') }}">Ссылки</a>
+        <a href="{{ url_for('announcements_page') }}" class="active">Объявления</a>
+    </nav>
 
     <script>
         async function addAnnouncement() {
@@ -94,15 +92,14 @@
                 if (response.ok) {
                     messageDiv.innerHTML = '<div class="announcement-message success">Объявление добавлено!</div>';
                     textInput.value = '';
-                    // Перезагрузим страницу через 1 секунду, чтобы показать новое объявление
                     setTimeout(() => {
                         location.reload();
                     }, 1000);
                 } else {
-                    messageDiv.innerHTML = '<div class="announcement-message error">' + (data.error || 'Ошибка при отправке') + '</div>';
+                    messageDiv.innerHTML = '<div class="announcement-message error">' + (data.error || 'Ошибка') + '</div>';
                 }
             } catch (error) {
-                messageDiv.innerHTML = '<div class="announcement-message error">Ошибка соединения с сервером</div>';
+                messageDiv.innerHTML = '<div class="announcement-message error">Ошибка соединения</div>';
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Добавить объявление';

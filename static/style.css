@@ -129,7 +129,7 @@ a:hover{
 
 /* Внутренний контейнер страницы */
 .page-inner{
-    max-width: 1040px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 0 20px;
 }
@@ -163,22 +163,29 @@ a:hover{
    СЕТКА (GRID) - Расположение колонок
    ========================================================================== */
 
-/* Основная сетка - 2 колонки (основная + сайдбар) */
+/* Основная сетка - 3 колонки */
 .grid{
     display: grid;
-    grid-template-columns: 2.25fr 1fr; /* 2/3 основная часть, 1/3 сайдбар */
-    gap: 20px; /* Расстояние между колонками */
+    grid-template-columns: 1.5fr 2fr 1fr; /* слева объявления (шире), по центру контент, справа ссылки */
+    gap: 20px;
     align-items: start;
 }
 
-/* Левая колонка с основным контентом */
+/* Левая колонка - объявления */
+.left-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Центральная колонка */
 .left-column{
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
-/* Сайдбар - правая колонка */
+/* Правая колонка - ссылки и группа */
 .sidebar{
     display: grid;
     gap: 20px;
@@ -186,12 +193,20 @@ a:hover{
 }
 
 /* Адаптивность - одна колонка на маленьких экранах */
+@media (max-width: 1200px) {
+    .grid {
+        grid-template-columns: 1fr 1fr; /* 2 колонки */
+    }
+    .left-sidebar {
+        grid-column: 1 / -1;
+        order: 3;
+    }
+}
+
 @media (max-width: 900px) {
     .grid {
         grid-template-columns: 1fr; /* Одна колонка */
     }
-    .left-column { order: 2; } /* Контент ниже */
-    .sidebar { order: 1; } /* Сайдбар выше */
 }
 
 

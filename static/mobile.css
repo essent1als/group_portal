@@ -1,0 +1,147 @@
+/* Мобильная версия - оптимизировано для телефонов */
+
+/* Убираем фиксированные элементы */
+.site-header {
+    position: relative;
+    padding: 10px;
+}
+
+.header-logo-row {
+    flex-direction: column;
+    gap: 8px;
+}
+
+.header-logo {
+    height: 30px;
+}
+
+.site-header h1 {
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+/* Мобильная навигация - горизонтальная полоса внизу */
+.main-nav {
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 5px;
+    background: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    gap: 0;
+}
+
+.main-nav a {
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
+/* Основной контент с отступом снизу для навигации */
+.page {
+    padding-bottom: 60px;
+}
+
+.page-inner {
+    padding: 10px;
+    max-width: 100%;
+}
+
+/* Одна колонка - всё вертикально */
+.grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.left-sidebar,
+.left-column,
+.sidebar {
+    width: 100%;
+}
+
+/* Карточки */
+.card {
+    padding: 15px;
+    margin-bottom: 0;
+}
+
+.card h2 {
+    font-size: 1.3rem;
+}
+
+/* Мобильная навигация для ссылок внизу */
+.nav-bottom {
+    display: flex;
+    justify-content: space-around;
+    background: #fff;
+    padding: 10px;
+    border-top: 1px solid #dee2e6;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.nav-bottom a {
+    color: #4a76a8;
+    text-decoration: none;
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+.nav-bottom a.active {
+    font-weight: bold;
+    color: #2d4a6a;
+}
+
+/* Мобильная форма объявлений */
+.announcement-form {
+    padding: 15px;
+}
+
+.announcement-form input,
+.announcement-form textarea {
+    font-size: 16px; /* Больше для мобильных */
+    padding: 14px;
+}
+
+/* Мобильные объявления */
+.announcement-item {
+    padding: 12px;
+}
+
+.announcement-text {
+    font-size: 14px;
+}
+
+/* Мобильные ссылки */
+.link-list a {
+    padding: 10px 0;
+    font-size: 14px;
+}
+
+/* Список группы */
+.member {
+    padding: 8px 0;
+}
+
+.member__avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+}
+
+.member__name {
+    font-size: 14px;
+}
+
+/* Кнопки в новостях VK */
+.vk-group-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+}

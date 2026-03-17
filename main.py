@@ -9,6 +9,13 @@ app = Flask(__name__)
 BASE_DIR = Path(__file__).resolve().parent
 
 
+def is_mobile_device(user_agent: str) -> bool:
+    """Определяет, является ли устройство мобильным"""
+    mobile_keywords = ['android', 'webos', 'iphone', 'ipad', 'ipod', 'blackberry', 'windows phone', 'mobile']
+    user_agent_lower = user_agent.lower()
+    return any(keyword in user_agent_lower for keyword in mobile_keywords)
+
+
 def _resolve_data_path(path_str: str) -> Path:
     primary_path = BASE_DIR / path_str
 
@@ -60,8 +67,14 @@ def _get_today_schedule(schedule_list):
 def home():
     full_schedule = _load_json("data/schedule.json", [])
     today_schedule = _get_today_schedule(full_schedule)
+    
+    # Определяем мобильное устройство
+    user_agent = request.headers.get('User-Agent', '')
+    is_mobile = is_mobile_device(user_agent)
+    template = "mobile-index.html" if is_mobile else "index.html"
+    
     return render_template(
-        "index.html",
+        template,
         schedule=today_schedule,
         full_schedule=full_schedule,
         links=_load_json("data/links_flat.json", []),
@@ -76,8 +89,13 @@ def schedule_page():
     config = _load_json("data/config.json", {})
     modeus_url = config.get("modeus_url", "https://sfedu.modeus.org")
     modeus_embed = config.get("modeus_embed_url", "https://sfedu.modeus.org/schedule")
+    
+    user_agent = request.headers.get('User-Agent', '')
+    is_mobile = is_mobile_device(user_agent)
+    template = "mobile-schedule.html" if is_mobile else "schedule.html"
+    
     return render_template(
-        "schedule.html", 
+        template, 
         schedule=_load_json("data/schedule.json", []),
         modeus_url=modeus_url,
         modeus_embed_url=modeus_embed
@@ -86,12 +104,18 @@ def schedule_page():
 
 @app.route("/links")
 def links_page():
-    return render_template("links.html", links=_load_json("data/links.json", []))
+    user_agent = request.headers.get('User-Agent', '')
+    is_mobile = is_mobile_device(user_agent)
+    template = "mobile-links.html" if is_mobile else "links.html"
+    return render_template(template, links=_load_json("data/links.json", []))
 
 
 @app.route("/announcements")
 def announcements_page():
-    return render_template("announcements.html", announcements=_load_json("data/announcements.json", []))
+    user_agent = request.headers.get('User-Agent', '')
+    is_mobile = is_mobile_device(user_agent)
+    template = "mobile-announcements.html" if is_mobile else "announcements.html"
+    return render_template(template, announcements=_load_json("data/announcements.json", []))
 
 
 @app.errorhandler(404)
@@ -170,6 +194,43 @@ def vk_news():
         
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/announcements", methods=["POST"])
+def add_announcement():
+    """Добавление нового объявления"""
+    data = request.get_json()
+    
+    if not data or not data.get("text"):
+        return jsonify({"error": "Текст объявления обязателен"}), 400
+    
+    text = data.get("text").strip()
+    author = data.get("author", "Аноним").strip() or "Аноним"
+    
+    if not text:
+        return jsonify({"error": "Текст объявления не может быть пустым"}), 400
+    
+    # Загружаем текущие объявления
+    announcements = _load_json("data/announcements.json", [])
+    
+    # Создаём новое объявление
+    new_id = max([a.get("id", 0) for a in announcements], default=0) + 1
+    new_announcement = {
+        "id": new_id,
+        "text": text,
+        "author": author,
+        "date": datetime.now().strftime("%Y-%m-%d")
+    }
+    
+    # Добавляем в начало списка
+    announcements.insert(0, new_announcement)
+    
+    # Сохраняем
+    path = _resolve_data_path("data/announcements.json")
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(announcements, f, ensure_ascii=False, indent=2)
+    
+    return jsonify({"success": True, "announcement": new_announcement})
 
 
 @app.errorhandler(500)
