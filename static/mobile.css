@@ -71,15 +71,15 @@
     text-decoration: none;
     color: #4a76a8;
     border-radius: 8px;
-    background: white;
-    border: 1px solid #dee2e6;
+    background: transparent;
+    border: none;
+    font-weight: 500;
 }
 
 .main-nav a.active {
     font-weight: bold;
     color: #2d4a6a;
-    background: #e9ecef;
-    border-color: #4a76a8;
+    background: #e3f2fd;
 }
 
 /* Отступ для контента */

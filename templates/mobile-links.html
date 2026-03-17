@@ -12,8 +12,8 @@
     <header class="site-header">
         <div class="header-inner">
             <div class="header-logo-row">
-                <img src="{{ url_for('static', filename='img/sfedu.png') }}" alt="Логотип ЮФУ" class="header-logo">
-                <h1>Полезные ссылки</h1>
+                <img src="https://sfedu.ru/img/new_design_2020/logo.png" alt="Логотип ЮФУ" class="header-logo">
+                <h1>Ссылки</h1>
                 <img src="{{ url_for('static', filename='img/irtsu.png') }}" alt="ИРТСУ" class="header-logo">
             </div>
             <nav class="main-nav">
@@ -28,20 +28,32 @@
     <main class="page">
         <div class="page-inner">
             <div class="card">
+                <h2>Полезные ссылки</h2>
                 {% if links %}
                     {% for category in links %}
-                        <h2>{{ category.name }}</h2>
-                        <ul class="link-list">
+                    <div style="margin-bottom: 25px;">
+                        <h3 style="color: #4a76a8; font-size: 16px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #dee2e6;">
+                            {{ category.category }}
+                        </h3>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
                             {% for link in category.links %}
-                                <li><a href="{{ link.url }}" target="_blank" rel="noopener noreferrer">{{ link.name }}</a></li>
+                                <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer" 
+                                   style="display: block; padding: 14px 16px; background: #f8f9fa; border-radius: 10px; text-decoration: none; color: #333; border: 1px solid #e9ecef; transition: all 0.2s;">
+                                    <span style="font-weight: 500;">{{ link.name }}</span>
+                                </a>
                             {% endfor %}
-                        </ul>
+                        </div>
+                    </div>
                     {% endfor %}
                 {% else %}
-                    <p>Ссылок пока нет.</p>
+                    <p style="color: #666; text-align: center;">Ссылок пока нет.</p>
                 {% endif %}
             </div>
         </div>
     </main>
+
+    <footer class="site-footer">
+        <p>Сайт портала группы</p>
+    </footer>
 </body>
 </html>

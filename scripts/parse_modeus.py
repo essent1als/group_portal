@@ -18,7 +18,7 @@ def parse_modeus_schedule(html_path: str, output_json: str):
     # День недели -> номер (Понедельник = 0)
     day_map = {
         'fc-mon': 'Понедельник',
-        'fc-tue': 'Вторник', 
+        'fc-tue': 'Вторник',
         'fc-wed': 'Среда',
         'fc-thu': 'Четверг',
         'fc-fri': 'Пятница',
@@ -26,16 +26,36 @@ def parse_modeus_schedule(html_path: str, output_json: str):
         'fc-sun': 'Воскресенье'
     }
     
-    # Типы занятий
-    type_map = {
-        'mds-event-type-lect': 'Лекция',
-        'mds-event-type-lab': 'Лабораторная',
-        'mds-event-type-semi': 'Практика',
-        'mds-event-type-pract': 'Практика'
+    # Сопоставление времён с номерами пар
+    time_to_pair = {
+        '08:00': 1, '08:30': 1,
+        '09:50': 2, '10:00': 2,
+        '11:55': 3, '12:00': 3,
+        '13:45': 4, '14:00': 4,
+        '15:50': 5, '16:00': 5,
+        '17:35': 6, '18:00': 6,
+        '19:15': 7, '19:30': 7,
+        '20:55': 8, '21:00': 8
     }
     
-    # Находим все дни недели из заголовка
-    day_headers = soup.find_all('th', class_='fc-day-header')
+    # Карта названий дней для определения дат
+    day_names_order = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье']
+    
+    # Сначала найдём все даты из заголовков или календаря
+    dates_found = {}
+    
+    # Ищем даты в заголовках
+    date_headers = soup.find_all('th', class_='fc-col-header-cell-caption')
+    for i, header in enumerate(date_headers):
+        date_text = header.get_text(strip=True)
+        # Формат: "16 марта" или "16.03"
+        day_name = day_names_order[i] if i < len(day_names_order) else None
+        if day_name and date_text:
+            # Извлекаем число
+            match = re.search(r'(\d+)', date_text)
+            if match:
+                day_num = match.group(1)
+                dates_found[day_name] = f"{day_num}.03"
     
     # Создаём структуру расписания
     # Формат: "Понедельник": {"date": "18.03", "lessons": []}
@@ -51,153 +71,122 @@ def parse_modeus_schedule(html_path: str, output_json: str):
         }
     }
     
-    # Сопоставляем дни с датами
-    days_info = []
-    for header in day_headers:
-        classes = header.get('class', [])
-        data_date = header.get('data-date', '')
-        
-        # Определяем день недели из классов
-        day_name = None
-        for cls in classes:
-            if cls in day_map:
-                day_name = day_map[cls]
-                break
-        
-        # Форматируем дату (2026-03-16 -> 16.03)
-        date_str = ""
-        if data_date:
-            try:
-                dt = datetime.strptime(data_date, '%Y-%m-%d')
-                date_str = dt.strftime('%d.%m')
-            except:
-                pass
-        
-        if day_name and data_date:
-            days_info.append({
-                'name': day_name,
-                'date': date_str
-            })
+    # Проставляем даты
+    for day in day_names_order:
+        if day in dates_found:
+            schedule["week_1"][day]["date"] = dates_found[day]
+        else:
+            # Генерируем дату на основе соседних дней
+            pass
     
-    print(f"Найдено дней: {len(days_info)}")
+    # Ищем все события (lessons)
+    events = soup.find_all('div', class_='fc-event')
     
-    if not days_info:
-        return
+    all_lessons = []
+    days_info = {}
     
-    # Находим контейнер с событиями - fc-content-skeleton
-    content_skeleton = soup.find('div', class_='fc-content-skeleton')
-    if not content_skeleton:
-        print("Не найден fc-content-skeleton")
-        return
-    
-    # Находим все строки в скелетоне
-    skeleton_table = content_skeleton.find('table')
-    if not skeleton_table:
-        print("Не найдена таблица в fc-content-skeleton")
-        return
-    
-    tbody = skeleton_table.find('tbody')
-    if not tbody:
-        print("Не найден tbody")
-        return
-    
-    tr = tbody.find('tr')
-    if not tr:
-        print("Не найдена строка tr")
-        return
-    
-    # Находим все ячейки (первая - ось времени, остальные - дни)
-    tds = tr.find_all('td')
-    print(f"Найдено ячеек в скелетоне: {len(tds)}")
-    
-    # Запишем отладку
-    with open('data/debug_parse.txt', 'w', encoding='utf-8') as f:
-        f.write(f"Дней: {len(days_info)}\n")
-        f.write(f"Ячеек в skeleton: {len(tds)}\n")
-        for i, td in enumerate(tds):
-            ev = td.find_all('a', class_='fc-time-grid-event')
-            f.write(f"  td[{i}]: класс={td.get('class')}, событий={len(ev)}")
-            if ev:
-                f.write(f"\n    первое событие классы: {ev[0].get('class')}")
-                title = ev[0].find('div', class_='fc-title')
-                if title:
-                    f.write(f", title: {title.get_text()[:50]}")
-            f.write("\n")
-    
-    # Для каждого дня (пропускаем первую ячейку - ось времени)
-    for idx, day_info in enumerate(days_info):
-        cell_idx = idx + 1  # +1 because first is time axis
-        if cell_idx >= len(tds):
-            break
-        
-        td = tds[cell_idx]
-        day_name = day_info['name']
-        
-        # Сохраняем дату для этого дня
-        schedule["week_1"][day_name]["date"] = day_info['date']
-        
-        # Находим все события напрямую в td
-        events = td.find_all('a', class_='fc-time-grid-event')
-        
-        for event in events:
-            # Извлекаем время
-            time_div = event.find('div', class_='fc-time')
-            if time_div:
-                time_full = time_div.get('data-full', '')
-                if not time_full:
-                    time_full = time_div.get_text(strip=True)
-            else:
-                time_full = ""
+    for event in events:
+        try:
+            # Время
+            time_elem = event.find('span', class_='fc-time')
+            time_str = time_elem.get_text(strip=True) if time_elem else ''
             
-            # Извлекаем название предмета
-            title_div = event.find('div', class_='fc-title')
-            subject = title_div.get_text(strip=True) if title_div else ""
+            # Предмет
+            title_elem = event.find('span', class_='fc-title')
+            subject = title_elem.get_text(strip=True) if title_elem else ''
             
-            # Извлекаем аудиторию
-            room = ""
-            if time_div:
-                room_small = time_div.find('small', class_='text-muted')
-                if room_small:
-                    room = room_small.get_text(strip=True)
+            # Место (может быть в другом элементе)
+            location_elem = event.find('span', class_='fc-location')
+            room = location_elem.get_text(strip=True) if location_elem else ''
             
             # Определяем тип занятия
-            event_classes = event.get('class', [])
-            lesson_type = "Практика"  # по умолчанию
-            for cls in event_classes:
-                if cls in type_map:
-                    lesson_type = type_map[cls]
+            event_class = event.get('class', [])
+            lesson_type = 'Лекция'  # по умолчанию
+            if 'practice' in event_class or 'лабораторн' in subject.lower():
+                lesson_type = 'Лабораторная'
+            elif 'семинар' in subject.lower() or 'практик' in subject.lower():
+                lesson_type = 'Практика'
+            
+            # День недели
+            parent = event.parent
+            day_class = ''
+            while parent:
+                if parent.name == 'tr' or parent.name == 'tbody':
+                    classes = parent.get('class', [])
+                    for c in classes:
+                        if c.startswith('fc-') and any(x in c for x in ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']):
+                            day_class = c
+                            break
+                parent = parent.parent
+            
+            day_name = ''
+            for key, val in day_map.items():
+                if key in (day_class or ''):
+                    day_name = val
                     break
             
-            # Создаём запись
+            if not day_name:
+                continue
+            
+            # Номер пары
+            pair_num = 1
+            for time_key, num in time_to_pair.items():
+                if time_key in time_str:
+                    pair_num = num
+                    break
+            
+            if day_name not in days_info:
+                days_info[day_name] = {'count': 0}
+            days_info[day_name]['count'] += 1
+            
             lesson = {
-                "time": time_full,
-                "subject": subject,
-                "type": lesson_type,
-                "teacher": "",
-                "room": room
+                'time': time_str,
+                'subject': subject,
+                'type': lesson_type,
+                'teacher': '',
+                'room': room
             }
             
+            all_lessons.append(lesson)
             schedule["week_1"][day_name]["lessons"].append(lesson)
-            print(f"  {day_name}: {time_full} - {subject[:50]}...")
+            
+        except Exception as e:
+            print(f"Error parsing event: {e}")
+            continue
     
     # Сохраняем в JSON
     with open(output_json, 'w', encoding='utf-8') as f:
         json.dump(schedule, f, ensure_ascii=False, indent=2)
     
-    print(f"\nСохранено в: {output_json}")
     return schedule
+
 
 if __name__ == '__main__':
     html_file = 'data/modeus_cache/schedule.html'
     json_file = 'data/schedule_static.json'
     
     print("=" * 50)
-    print("Парсинг расписания Modeus")
+    print("Парсер расписания Modeus")
     print("=" * 50)
     
     try:
         schedule = parse_modeus_schedule(html_file, json_file)
+        
+        total_days = len(schedule.get('week_1', {}))
+        total_lessons = sum(len(day['lessons']) for day in schedule.get('week_1', {}).values())
+        
+        print(f"Дней в расписании: {total_days}")
+        print(f"Всего пар в расписании: {total_lessons}")
+        
+        for day_name, day_data in schedule['week_1'].items():
+            if day_data['lessons']:
+                print(f"\n{day_name}:")
+                for lesson in day_data['lessons']:
+                    print(f"  {lesson['time']} - {lesson['subject'][:50]}...")
+        
+        print(f"\nСохранено в: {json_file}")
         print("\nГотово!")
+        
     except Exception as e:
         print(f"Ошибка: {e}")
         import traceback

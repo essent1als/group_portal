@@ -42,41 +42,8 @@
                         </span>
                     </div>
 
-                    <!-- Переключатель режимов -->
-                    <div class="schedule-tabs">
-                        <button class="schedule-tab active" onclick="showMode('iframe')" id="mode-iframe">🌐 Modeus</button>
-                        <button class="schedule-tab" onclick="showMode('parsed')" id="mode-parsed">📋 Данные</button>
-                    </div>
-
-                    <!-- Режим iframe -->
-                    <div class="schedule-view active" id="view-iframe">
-                        <div class="schedule-actions">
-                            <a href="{{ modeus_url }}" target="_blank" class="btn-schedule btn-schedule--primary">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                                    <polyline points="15 3 21 3 21 9"></polyline>
-                                    <line x1="10" y1="14" x2="21" y2="3"></line>
-                                </svg>
-                                Открыть в Modeus
-                            </a>
-                        </div>
-                        <div class="modeus-iframe-wrapper">
-                            <div class="modeus-loading" id="loading">
-                                <div class="modeus-loading-spinner"></div>
-                                <span>Загрузка расписания...</span>
-                            </div>
-                            <iframe 
-                                id="modeus-iframe"
-                                src="{{ modeus_embed_url }}" 
-                                title="Расписание Modeus"
-                                allow="clipboard-write; fullscreen"
-                                onload="document.getElementById('loading').style.display = 'none';"
-                            ></iframe>
-                        </div>
-                    </div>
-
-                    <!-- Режим данных (статическое расписание) -->
-                    <div class="schedule-view" id="view-parsed" style="display: none;">
+                    <!-- Статическое расписание -->
+                    <div class="schedule-view active" id="view-parsed">
                         <div id="schedule-loading" style="text-align: center; padding: 20px; color: #666;">
                             Загрузка расписания...
                         </div>
@@ -105,21 +72,6 @@
 
     <script>
         const MODEUS_URL = "{{ modeus_url }}";
-        
-        // Переключение режимов
-        function showMode(mode) {
-            document.getElementById('view-iframe').style.display = mode === 'iframe' ? 'block' : 'none';
-            document.getElementById('view-parsed').style.display = mode === 'parsed' ? 'block' : 'none';
-            
-            document.getElementById('mode-iframe').classList.toggle('active', mode === 'iframe');
-            document.getElementById('mode-parsed').classList.toggle('active', mode === 'parsed');
-            
-            localStorage.setItem('scheduleMode', mode);
-            
-            if (mode === 'parsed') {
-                loadStaticSchedule();
-            }
-        }
         
         // Загрузка статического расписания
         async function loadStaticSchedule() {
@@ -262,9 +214,8 @@
             document.getElementById('schedule-data').innerHTML = html;
         }
         
-        // Восстановление режима
-        const savedMode = localStorage.getItem('scheduleMode') || 'iframe';
-        showMode(savedMode);
+        // Загружаем расписание при открытии страницы
+        loadStaticSchedule();
     </script>
 </body>
 </html>

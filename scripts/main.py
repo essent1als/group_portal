@@ -303,144 +303,20 @@ def add_announcement():
     return jsonify({"success": True, "announcement": new_announcement})
 
 
-# ==================== Modeus Auth ====================
+# ==================== Modeus (отключено) ====================
+
+# Функции входа в Modeus отключены
 
 @app.route("/modeus-login")
 def modeus_login_page():
     """Перенаправление на вход в Modeus"""
-    redirect_url = request.args.get('redirect', url_for('schedule_page', _external=True))
-    
-    # Перенаправляем на страницу входа Modeus
-    # После входа пользователь вернется на наш сайт
-    modeus_url = f"{MODEUS_BASE_URL}/login"
-    
-    # Перенаправляем на Modeus
-    return redirect(modeus_url)
+    return redirect(url_for('schedule_page'))
 
 
 @app.route("/modeus-login", methods=["POST"])
 def modeus_login():
-    """Обработка входа в Modeus"""
-    username = request.form.get("username", "").strip()
-    password = request.form.get("password", "")
-    redirect_url = request.form.get("redirect", "")
-    
-    if not username or not password:
-        return render_template(
-            "login-modeus.html", 
-            error="Введите логин и пароль",
-            redirect_url=redirect_url
-        )
-    
-    # Пробуем авторизоваться через CAS Modeus
-    session = requests.Session()
-    
-    try:
-        # 1. Получаем страницу CAS для получения service ticket
-        cas_url = f"{MODEUS_BASE_URL}/cas/login?service={MODEUS_BASE_URL}/api/sessions"
-        response = session.get(cas_url, timeout=10)
-        
-        print(f"CAS page status: {response.status_code}")
-        print(f"CAS page URL: {response.url}")
-        print(f"CAS page content length: {len(response.text)}")
-        
-        # 2. Извлекаем LT токен из формы
-        import re
-        lt_match = re.search(r'name="lt"\s+value="([^"]+)"', response.text)
-        execution_match = re.search(r'name="execution"\s+value="([^"]+)"', response.text)
-        
-        if not lt_match or not execution_match:
-            print("LT token not found!")
-            # Показываем начало страницы для отладки
-            print(f"Page start: {response.text[:500]}")
-            # Пробуем альтернативный способ - прямой API
-            return _try_modeus_api_login(username, password, redirect_url)
-        
-        lt_token = lt_match.group(1)
-        execution = execution_match.group(1)
-        
-        # 3. Отправляем учетные данные
-        login_data = {
-            "username": username,
-            "password": password,
-            "lt": lt_token,
-            "execution": execution,
-            "_eventId": "submit",
-            "submit": "Войти"
-        }
-        
-        response = session.post(cas_url, data=login_data, allow_redirects=False, timeout=10)
-        
-        # 4. Проверяем, прошла ли авторизация
-        if response.status_code in (302, 303):
-            # Успешная авторизация
-            # Получаем куки
-            cookies_dict = {k: v for k, v in session.cookies.items()}
-            
-            # Сохраняем в сессию Flask
-            session['modeus_logged_in'] = True
-            session['modeus_username'] = username
-            session['modeus_cookies'] = cookies_dict
-            
-            if redirect_url:
-                return redirect(redirect_url)
-            return redirect(url_for('schedule_page'))
-        else:
-            return render_template(
-                "login-modeus.html",
-                error="Неверный логин или пароль. Проверьте ваши учетные данные от sfedu.modeus.org",
-                redirect_url=redirect_url
-            )
-            
-    except requests.RequestException as e:
-        print(f"Modeus login error: {e}")
-        # Пробуем альтернативный способ
-        return _try_modeus_api_login(username, password, redirect_url)
-
-
-def _try_modeus_api_login(username, password, redirect_url=""):
-    """Альтернативный способ входа через API"""
-    session = requests.Session()
-    
-    try:
-        # Пробуем войти через API
-        api_url = f"{MODEUS_BASE_URL}/api/sessions"
-        
-        login_data = {
-            "login": username,
-            "password": password
-        }
-        
-        response = session.post(api_url, json=login_data, timeout=10)
-        
-        if response.status_code == 201:
-            # Успешный вход
-            data = response.json()
-            
-            cookies_dict = {k: v for k, v in session.cookies.items()}
-            
-            session['modeus_logged_in'] = True
-            session['modeus_username'] = username
-            session['modeus_user_id'] = data.get('person', {}).get('id', '')
-            session['modeus_cookies'] = cookies_dict
-            
-            if redirect_url:
-                return redirect(redirect_url)
-            return redirect(url_for('schedule_page'))
-        else:
-            return render_template(
-                "login-modeus.html",
-                error=f"Не удалось войти. Код ошибки: {response.status_code}",
-                redirect_url=redirect_url
-            )
-            
-    except Exception as e:
-        print(f"Modeus API login error: {e}")
-        return render_template(
-            "login-modeus.html",
-            error="Ошибка соединения с Modeus. Попробуйте позже.",
-            redirect_url=redirect_url
-        )
+    """Вход в Modeus"""
+    return redirect(url_for('schedule_page'))
 
 
 @app.route("/modeus-logout")
