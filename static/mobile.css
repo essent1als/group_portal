@@ -1,0 +1,158 @@
+/* Мобильная версия - одна колонка, крупнее и ближе */
+
+/* Основной контейнер */
+.page-inner {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 15px;
+}
+
+/* Три колонки в одну */
+.grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Хедер */
+.site-header {
+    padding: 10px 15px;
+}
+
+.header-logo-row {
+    flex-direction: column;
+    gap: 5px;
+}
+
+.header-logo {
+    height: 30px;
+}
+
+.site-header h1 {
+    font-size: 1.3rem;
+}
+
+/* Навигация - горизонтальная полоса внизу */
+.main-nav {
+    display: flex;
+    justify-content: space-around;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-top: 1px solid #dee2e6;
+    padding: 8px 5px;
+    z-index: 1000;
+}
+
+.main-nav a {
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+/* Отступ для контента */
+.page {
+    padding-bottom: 60px;
+}
+
+/* Карточки */
+.card {
+    padding: 20px;
+    border-radius: 12px;
+}
+
+.card h2 {
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+}
+
+/* Крупнее текст */
+.announcement-item {
+    padding: 15px;
+}
+
+.announcement-text {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.announcement-author {
+    font-size: 15px;
+}
+
+.announcement-date {
+    font-size: 14px;
+}
+
+/* Форма объявлений */
+.announcement-form {
+    padding: 20px;
+    border-radius: 12px;
+}
+
+.announcement-form input,
+.announcement-form textarea {
+    padding: 14px;
+    font-size: 16px;
+    border-radius: 8px;
+}
+
+.announcement-form button {
+    padding: 14px 28px;
+    font-size: 16px;
+    border-radius: 8px;
+}
+
+/* Ссылки */
+.link-list a {
+    padding: 12px 0;
+    font-size: 16px;
+}
+
+/* Список группы */
+.member {
+    padding: 10px 0;
+}
+
+.member__avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+}
+
+.member__name {
+    font-size: 16px;
+}
+
+/* Кнопки VK */
+.vk-group-btn {
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+/* Мобильная навигация внизу страниц */
+.nav-bottom {
+    display: flex;
+    justify-content: space-around;
+    background: #fff;
+    padding: 10px;
+    border-top: 1px solid #dee2e6;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.nav-bottom a {
+    color: #4a76a8;
+    text-decoration: none;
+    padding: 10px 16px;
+    font-size: 14px;
+}
+
+.nav-bottom a.active {
+    font-weight: bold;
+    color: #2d4a6a;
+}
