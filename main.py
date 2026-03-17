@@ -9,13 +9,6 @@ app = Flask(__name__)
 BASE_DIR = Path(__file__).resolve().parent
 
 
-def is_mobile_device(user_agent: str) -> bool:
-    """Определяет, является ли устройство мобильным"""
-    mobile_keywords = ['android', 'webos', 'iphone', 'ipad', 'ipod', 'blackberry', 'windows phone', 'mobile']
-    user_agent_lower = user_agent.lower()
-    return any(keyword in user_agent_lower for keyword in mobile_keywords)
-
-
 def _resolve_data_path(path_str: str) -> Path:
     primary_path = BASE_DIR / path_str
 
@@ -67,14 +60,8 @@ def _get_today_schedule(schedule_list):
 def home():
     full_schedule = _load_json("data/schedule.json", [])
     today_schedule = _get_today_schedule(full_schedule)
-    
-    # Определяем мобильное устройство
-    user_agent = request.headers.get('User-Agent', '')
-    is_mobile = is_mobile_device(user_agent)
-    template = "mobile-index.html" if is_mobile else "index.html"
-    
     return render_template(
-        template,
+        "index.html",
         schedule=today_schedule,
         full_schedule=full_schedule,
         links=_load_json("data/links_flat.json", []),
@@ -89,13 +76,8 @@ def schedule_page():
     config = _load_json("data/config.json", {})
     modeus_url = config.get("modeus_url", "https://sfedu.modeus.org")
     modeus_embed = config.get("modeus_embed_url", "https://sfedu.modeus.org/schedule")
-    
-    user_agent = request.headers.get('User-Agent', '')
-    is_mobile = is_mobile_device(user_agent)
-    template = "mobile-schedule.html" if is_mobile else "schedule.html"
-    
     return render_template(
-        template, 
+        "schedule.html", 
         schedule=_load_json("data/schedule.json", []),
         modeus_url=modeus_url,
         modeus_embed_url=modeus_embed
@@ -104,18 +86,12 @@ def schedule_page():
 
 @app.route("/links")
 def links_page():
-    user_agent = request.headers.get('User-Agent', '')
-    is_mobile = is_mobile_device(user_agent)
-    template = "mobile-links.html" if is_mobile else "links.html"
-    return render_template(template, links=_load_json("data/links.json", []))
+    return render_template("links.html", links=_load_json("data/links.json", []))
 
 
 @app.route("/announcements")
 def announcements_page():
-    user_agent = request.headers.get('User-Agent', '')
-    is_mobile = is_mobile_device(user_agent)
-    template = "mobile-announcements.html" if is_mobile else "announcements.html"
-    return render_template(template, announcements=_load_json("data/announcements.json", []))
+    return render_template("announcements.html", announcements=_load_json("data/announcements.json", []))
 
 
 @app.errorhandler(404)

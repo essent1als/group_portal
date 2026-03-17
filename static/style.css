@@ -192,20 +192,51 @@ a:hover{
     align-self: start;
 }
 
-/* Адаптивность - одна колонка на маленьких экранах */
+/* Адаптивность - переход к компактному виду на маленьких экранах */
 @media (max-width: 1200px) {
     .grid {
-        grid-template-columns: 1fr 1fr; /* 2 колонки */
+        grid-template-columns: 1fr 1.5fr 1fr;
     }
-    .left-sidebar {
-        grid-column: 1 / -1;
-        order: 3;
+    .page-inner {
+        max-width: 100%;
+        padding: 15px;
     }
 }
 
 @media (max-width: 900px) {
     .grid {
-        grid-template-columns: 1fr; /* Одна колонка */
+        grid-template-columns: 1fr 2fr 1fr;
+    }
+    .site-header h1 {
+        font-size: 1.5rem;
+    }
+    .header-logo {
+        height: 35px;
+    }
+    .card {
+        padding: 12px;
+    }
+    .card h2 {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .grid {
+        grid-template-columns: 1fr 2fr 1fr;
+        gap: 10px;
+    }
+    .page-inner {
+        padding: 10px;
+    }
+    .header-logo-row {
+        gap: 5px;
+    }
+    .header-logo {
+        height: 28px;
+    }
+    .site-header h1 {
+        font-size: 1.2rem;
     }
 }
 
@@ -767,11 +798,6 @@ a:hover{
 /* ==========================================================================
    АДАПТИВНОСТЬ - Стили для разных размеров экрана
    ========================================================================== */
-
-/* Большие экраны - одна колонка */
-@media (max-width: 1040px) {
-    .grid{grid-template-columns: 1fr;}
-}
 
 /* Маленькие экраны - уменьшаем заголовки и отступы */
 @media (max-width: 600px) {
