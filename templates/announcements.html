@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Объявления — Портал группы</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Объявления</h1>
+        <nav>
+            <a href="{{ url_for('home') }}">Главная</a>
+            <a href="{{ url_for('schedule_page') }}">Расписание</a>
+            <a href="{{ url_for('links_page') }}">Ссылки</a>
+        </nav>
+    </header>
+
+    <section>
+        {% if announcements %}
+            <ul>
+                {% for ann in announcements %}
+                    <li>{{ ann }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Объявлений нет. Добавьте данные в <code>data/announcements.json</code>.</p>
+        {% endif %}
+    </section>
+
+    <footer>
+        <p>Сайт на Flask · Измените данные в <code>data/</code>.</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</body>
+</html>

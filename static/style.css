@@ -1,0 +1,765 @@
+/* ==========================================================================
+   ОСНОВНЫЕ СТИЛИ - Глобальные настройки для всего сайта
+   ========================================================================== */
+
+/* Базовые настройки для всех элементов */
+*{
+    box-sizing: border-box; /*-box-sizing: border-box включает padding и border в ширину/высоту элемента */
+}
+
+/* Стили для всего тела страницы */
+body{
+    margin: 0; /* Убираем отступы */
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", Arial, sans-serif; /* Основной шрифт */
+    color: #2b3a4a; /* Цвет текста */
+    
+    /* Фон - затемнённое изображение + градиент для читаемости */
+    background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 100%), url('https://cdnn21.img.ria.ru/images/153227/41/1532274136_0:0:3514:1976_1920x0_80_0_0_93c626e736ec0fd714afc80db8742efe.jpg');
+    background-size: cover; /* Фон занимает весь экран */
+    background-position: center; /* Центрируем фон */
+    background-attachment: fixed; /* Фон не двигается при скролле */
+    min-height: 100vh; /* Минимальная высота - весь экран */
+}
+
+/* Стили для всех ссылок */
+a{
+    color: inherit; /* Цвет ссылки как у родителя */
+    text-decoration: none; /* Убираем подчёркивание */
+}
+
+/* Стили для ссылок при наведении */
+a:hover{
+    opacity: .85; /* Небольшое затемнение при наведении */
+}
+
+
+/* ==========================================================================
+   ШАПКА САЙТА (HEADER) - Верхняя часть с названием и меню
+   ========================================================================== */
+
+/* Контейнер шапки */
+.site-header{
+    padding: 40px 0 30px; /* Отступы сверху/снизу */
+    text-align: center; /* Текст по центру */
+    color: #fff; /* Белый текст */
+    background: linear-gradient(135deg, rgba(0,51,153,0.85), rgba(0,30,100,0.85)); /* Синий градиент */
+    backdrop-filter: blur(5px); /* Эффект размытия */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4); /* Тень снизу */
+}
+
+/* Внутренний контейнер шапки - ограничивает ширину контента */
+.header-inner{
+    max-width: 1040px; /* Максимальная ширина */
+    margin: 0 auto; /* Центрирование */
+    padding: 0 20px; /* Отступы по бокам */
+}
+
+/* Заголовок в шапке */
+.site-header h1{
+    margin: 0; /* Убираем отступы */
+    font-size: 2.6rem; /* Размер шрифта */
+    letter-spacing: 0.02em; /* Межбуквенный интервал */
+}
+
+/* Ряд с логотипами (логотип ЮФУ + название + логотип ИРТСУ) */
+.header-logo-row {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Выравнивание по центру */
+    gap: 20px; /* Расстояние между элементами */
+    margin-bottom: 16px; /* Отступ снизу */
+}
+
+/* Стили для логотипов */
+.header-logo {
+    height: 120px; /* Высота логотипа */
+    width: auto; /* Ширина автоматическая */
+}
+
+/* Адаптивность для мобильных - уменьшаем логотип */
+@media (max-width: 600px) {
+    .header-logo {
+        height: 60px;
+    }
+}
+
+
+/* ==========================================================================
+   НАВИГАЦИЯ (NAV) - Меню сайта
+   ========================================================================== */
+
+/* Контейнер навигации */
+.main-nav{
+    display: inline-flex; /* Выстраиваем в ряд */
+    gap: 10px; /* Расстояние между пунктами меню */
+    flex-wrap: wrap; /* Перенос на новую строку если не помещается */
+    justify-content: center; /* Центрирование */
+}
+
+/* Ссылки в меню */
+.main-nav a{
+    padding: 10px 18px; /* Внутренние отступы */
+    border-radius: 999px; /* Закруглённые углы (почти круглые) */
+    border: 1px solid rgba(255,255,255,0.5); /* Белая рамка */
+    background: rgba(0,51,153,0.6); /* Полупрозрачный синий фон */
+    color: #fff; /* Белый текст */
+    font-weight: 600; /* Жирный шрифт */
+    font-size: 0.95rem; /* Размер шрифта */
+    transition: background 160ms ease, transform 160ms ease; /* Анимация при наведении */
+}
+
+/* Меню при наведении */
+.main-nav a:hover{
+    background: rgba(0,51,153,0.85); /* Более насыщенный фон */
+    transform: translateY(-1px); /* Небольшое смещение вверх */
+}
+
+/* Маленький пункт меню */
+.nav-small{font-size:0.85rem; padding: 8px 14px;}
+
+
+/* ==========================================================================
+   ОСНОВНОЙ КОНТЕНТ СТРАНИЦЫ
+   ========================================================================== */
+
+/* Контейнер страницы */
+.page{
+    padding: 40px 0 80px; /* Отступы сверху/снизу */
+}
+
+/* Внутренний контейнер страницы */
+.page-inner{
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+
+/* ==========================================================================
+   КАРТОЧКИ (CARDS) - Блоки с контентом
+   ========================================================================== */
+
+/* Основная карточка */
+.card{
+    background: rgba(255,255,255,0.95); /* Почти белый фон с прозрачностью */
+    backdrop-filter: blur(10px); /* Эффект размытия */
+    border-radius: 18px; /* Закруглённые углы */
+    padding: 26px; /* Внутренние отступы */
+    box-shadow: 0 14px 30px rgba(0,0,0,0.2); /* Тень */
+    margin-bottom: 24px; /* Отступ снизу */
+}
+
+/* Заголовок карточки */
+.card h2{
+    margin-top: 0;
+    font-size: 1.4rem;
+}
+
+/* Увеличенная карточка */
+.card--large{padding: 28px 28px 18px;}
+
+
+/* ==========================================================================
+   СЕТКА (GRID) - Расположение колонок
+   ========================================================================== */
+
+/* Основная сетка - 2 колонки (основная + сайдбар) */
+.grid{
+    display: grid;
+    grid-template-columns: 2.25fr 1fr; /* 2/3 основная часть, 1/3 сайдбар */
+    gap: 20px; /* Расстояние между колонками */
+    align-items: start;
+}
+
+/* Левая колонка с основным контентом */
+.left-column{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Сайдбар - правая колонка */
+.sidebar{
+    display: grid;
+    gap: 20px;
+    align-self: start;
+}
+
+/* Адаптивность - одна колонка на маленьких экранах */
+@media (max-width: 900px) {
+    .grid {
+        grid-template-columns: 1fr; /* Одна колонка */
+    }
+    .left-column { order: 2; } /* Контент ниже */
+    .sidebar { order: 1; } /* Сайдбар выше */
+}
+
+
+/* ==========================================================================
+   ТАБЛИЦЫ - Стили для расписания
+   ========================================================================== */
+
+/* Обёртка таблицы - для горизонтальной прокрутки */
+.table-wrap{
+    overflow-x: auto;
+}
+
+/* Таблица расписания */
+.schedule-table{
+    width: 100%;
+    border-collapse: collapse; /* Убираем двойные границы */
+    min-width: 420px;
+}
+
+/* Ячейки таблицы */
+.schedule-table th,
+.schedule-table td{
+    padding: 12px 14px;
+    border: 1px solid rgba(0,0,0,0.08);
+}
+
+/* Заголовок таблицы */
+.schedule-table th{
+    background: rgba(0,51,153,0.9); /* Синий фон */
+    color: #fff; /* Белый текст */
+    font-weight: 600;
+    text-align: left;
+}
+
+/* Строка таблицы при наведении */
+.schedule-table tbody tr:hover{
+    background: rgba(0,51,153,0.1); /* Лёгкое затемнение */
+}
+
+
+/* ==========================================================================
+   ССЫЛКИ В САЙДБАРЕ
+   ========================================================================== */
+
+/* Список ссылок */
+.link-list{
+    padding-left: 18px;
+    margin: 0;
+}
+
+.link-list li{
+    margin: 10px 0;
+}
+
+.link-list a{
+    color: #1a3d85; /* Синий цвет ссылок */
+    font-weight: 600;
+}
+
+/* Сетка для ссылок */
+.link-list--grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    padding-left: 0;
+    list-style: none;
+}
+
+.link-list--grid li {
+    margin: 0;
+}
+
+.link-card a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    color: #2b3a4a;
+    font-weight: 500;
+}
+
+.link-card a:hover {
+    background: #eef2f7;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    text-decoration: none;
+    color: #2b3a4a;
+}
+
+.link-icon {
+    font-size: 1.4rem;
+}
+
+/* Категории ссылок */
+.links-category {
+    margin-bottom: 32px;
+}
+
+.links-category:last-child {
+    margin-bottom: 0;
+}
+
+.links-category__title {
+    margin: 0 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #4a76a8;
+    font-size: 1.2rem;
+    color: #2b3a4a;
+}
+
+
+/* ==========================================================================
+   БЛОК "ВАЖНО" - Объявления
+   ========================================================================== */
+.notes{
+    margin-top: 20px;
+}
+
+.notes h3{
+    margin: 0 0 12px;
+    font-size: 1.1rem;
+}
+
+.notes ul{
+    list-style: disc inside;
+    padding-left: 0;
+    margin: 0;
+}
+
+.notes li{
+    margin: 8px 0;
+}
+
+.muted{
+    color: rgba(43, 58, 74, 0.72); /* Приглушённый текст */
+}
+
+
+/* ==========================================================================
+   ПОСТЫ/НОВОСТИ - Стили для постов ВКонтакте
+   ========================================================================== */
+
+/* Контейнер поста */
+.post{
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 16px;
+    overflow: hidden;
+    background: #fff;
+}
+
+/* Заголовок поста */
+.post__header{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+}
+
+/* Аватарка автора поста */
+.post__avatar{
+    flex-shrink: 0;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%; /* Круглая аватарка */
+    background: linear-gradient(135deg, #4d7dd4, #1b2c56);
+}
+
+/* Заголовок поста */
+.post__title{
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+/* Мета-информация поста (дата, автор) */
+.post__meta{
+    font-size: 0.85rem;
+    color: rgba(43, 58, 74, 0.65);
+}
+
+/* Кнопки */
+.btn{
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(36, 56, 88, 0.25);
+    background: rgba(255,255,255,0.78);
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn--outline{
+    color: #2c3e50;
+}
+
+/* Тело поста */
+.post__body{
+    padding: 0 18px 14px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: rgba(43, 58, 74, 0.86);
+}
+
+/* Футер поста (лайки, комментарии) */
+.post__footer{
+    display: flex;
+    gap: 18px;
+    padding: 12px 18px;
+    border-top: 1px solid rgba(0,0,0,0.06);
+    font-size: 0.9rem;
+    color: rgba(43, 58, 74, 0.65);
+}
+
+
+/* ==========================================================================
+   ВИДЖЕТ ВК - Стили для виджета новостей ВКонтакте
+   ========================================================================== */
+
+/* Блок с виджетом */
+.vk-widget-block{
+    flex: 0 0 auto;
+    min-width: 220px;
+    min-height: 240px;
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.vk-widget{
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 240px;
+    overflow: hidden;
+    border-radius: 0;
+    background: transparent;
+}
+
+.vk-widget iframe {
+    width: 100% !important;
+    height: 100% !important;
+    border: none !important;
+}
+
+/* Контейнер для нескольких виджетов */
+.vk-widgets{
+    display: flex;
+    justify-content: flex-start;
+    gap: 12px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Скроллбар для виджетов */
+.vk-widgets::-webkit-scrollbar {
+    height: 8px;
+}
+
+.vk-widgets::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.2);
+    border-radius: 4px;
+}
+
+.vk-widget-block h3{
+    margin: 0 0 10px;
+    font-size: 1rem;
+    color: rgba(43, 58, 74, 0.85);
+}
+
+
+/* ==========================================================================
+   НОВОСТИ ВК - Стили для ленты новостей
+   ========================================================================== */
+
+/* Заголовок блока новостей */
+.vk-news-title-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.vk-news-title-row h2 {
+    margin: 0;
+}
+
+/* Выбор группы ВК */
+.vk-group-list-inline {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.vk-group-list-inline .vk-group-btn {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+}
+
+/* Заголовок в блоке новостей */
+.vk-news-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Аватар группы */
+.vk-group-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+/* Название группы */
+.vk-group-name {
+    font-weight: 600;
+    color: #2b3a4a;
+}
+
+/* Переключатель групп */
+.vk-group-selector {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.vk-group-list .vk-group-selector {
+    display: none;
+}
+
+/* Кнопка выбора группы */
+.vk-group-btn {
+    padding: 8px 16px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 20px;
+    background: #fff;
+    color: #2b3a4a;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 160ms ease;
+}
+
+.vk-group-btn:hover {
+    background: rgba(100, 144, 218, 0.15);
+    border-color: rgba(100, 144, 218, 0.4);
+}
+
+.vk-group-btn.active {
+    background: #003399;
+    border-color: #003399;
+    color: #fff;
+}
+
+/* Контейнер виджета */
+.vk-news-widget-container {
+    width: 100%;
+    min-height: 500px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.vk-news-widget-container iframe {
+    width: 100% !important;
+    min-height: 500px !important;
+    border: none !important;
+}
+
+/* Лента новостей */
+.vk-news-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+}
+
+/* Состояния загрузки и пустоты */
+.vk-news-loading {
+    text-align: center;
+    padding: 40px 20px;
+    color: rgba(43, 58, 74, 0.65);
+    font-size: 1rem;
+}
+
+.vk-news-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: rgba(43, 58, 74, 0.65);
+    font-size: 1rem;
+}
+
+/* Пост новостей */
+.vk-news-post {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    padding: 16px;
+    transition: box-shadow 160ms ease;
+}
+
+.vk-news-post:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Текст поста */
+.vk-news-text {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: rgba(43, 58, 74, 0.86);
+    margin-bottom: 12px;
+    word-wrap: break-word;
+}
+
+/* Фото в посте */
+.vk-news-photo {
+    margin: 12px 0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.vk-news-photo img {
+    width: 100%;
+    height: auto;
+    display: block;
+    max-width: 100%;
+}
+
+/* Ссылки в посте */
+.vk-news-link {
+    margin: 8px 0;
+}
+
+.vk-news-link a {
+    color: #1a3d85;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+/* Мета-информация поста (дата, статистика) */
+.vk-news-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    margin-top: 12px;
+}
+
+/* Дата поста */
+.vk-news-date {
+    font-size: 0.8rem;
+    color: rgba(43, 58, 74, 0.55);
+}
+
+/* Статистика поста (лайки, комментарии) */
+.vk-news-stats {
+    display: flex;
+    gap: 12px;
+    font-size: 0.8rem;
+    color: rgba(43, 58, 74, 0.65);
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 600px) {
+    .vk-news-meta {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .vk-news-stats {
+        flex-wrap: wrap;
+    }
+}
+
+
+/* ==========================================================================
+   IFRAME РАСПИСАНИЯ НА ГЛАВНОЙ
+   ========================================================================== */
+
+/* iframe с расписанием Modeus на главной странице */
+.today-schedule-iframe {
+    width: 100%;
+    height: 600px;
+    border: none;
+    border-radius: 8px;
+}
+
+
+/* ==========================================================================
+   УЧАСТНИКИ ГРУППЫ - Список студентов
+   ========================================================================== */
+
+/* Список участников */
+.members{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Участник */
+.member{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 0;
+}
+
+/* Аватар участника */
+.member__avatar{
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #d8e1f6;
+}
+
+/* Заглушка аватара (когда нет фото) */
+.member__avatar--placeholder{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #3a4b6a;
+}
+
+/* Имя участника */
+.member__name{
+    font-weight: 600;
+    color: #2b3a4a;
+}
+
+
+/* ==========================================================================
+   ПОДВАЛ (FOOTER) - Нижняя часть сайта
+   ========================================================================== */
+
+.site-footer{
+    margin-top: 18px;
+    padding: 18px 0;
+    text-align: center;
+    color: rgba(255,255,255,0.72);
+    font-size: 0.9rem;
+}
+
+
+/* ==========================================================================
+   АДАПТИВНОСТЬ - Стили для разных размеров экрана
+   ========================================================================== */
+
+/* Большие экраны - одна колонка */
+@media (max-width: 1040px) {
+    .grid{grid-template-columns: 1fr;}
+}
+
+/* Маленькие экраны - уменьшаем заголовки и отступы */
+@media (max-width: 600px) {
+    .site-header h1{font-size: 2rem;}
+    .main-nav a {font-size: 0.85rem; padding: 8px 14px;}
+}

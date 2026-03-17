@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Расписание — Портал группы</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='schedule.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <div class="header-logo-row">
+                <img src="https://sfedu.ru/img/new_design_2020/logo.png" alt="Логотип ЮФУ" class="header-logo">
+                <h1>Расписание</h1>
+                <img src="{{ url_for('static', filename='img/irtsu.png') }}" alt="ИРТСУ" class="header-logo">
+            </div>
+            <nav class="main-nav">
+                <a href="{{ url_for('home') }}">Главная</a>
+                <a href="{{ url_for('links_page') }}">Ссылки</a>
+                <a href="{{ url_for('schedule_page') }}" class="nav-small">Расписание</a>
+            </nav>
+            </nav>
+        </div>
+    </header>
+
+    <main class="page">
+        <div class="page-inner">
+            <div class="card">
+                <div class="schedule-container">
+                    <div class="schedule-header">
+                        <h2>Расписание занятий</h2>
+                        <span class="modeus-badge">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            Modeus
+                        </span>
+                    </div>
+
+                    <div class="modeus-notice">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        <p>
+                            <strong>Важно:</strong> Для просмотра расписания необходимо войти в систему Modeus. 
+                            Если iframe не загружается, нажмите кнопку "Открыть в Modeus" ниже и войдите в свой аккаунт.
+                            Расписание одинаковое для всей группы.
+                        </p>
+                    </div>
+
+                    <div class="schedule-tabs">
+                        <button class="schedule-tab active" data-view="modeus">Modeus</button>
+                    </div>
+
+                    <!-- Modeus iframe -->
+                    <div class="schedule-view active" id="modeus-view">
+                        <div class="schedule-actions">
+                            <a href="{{ modeus_url }}" target="_blank" class="btn-schedule btn-schedule--primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                    <polyline points="15 3 21 3 21 9"></polyline>
+                                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                                </svg>
+                                Открыть в Modeus
+                            </a>
+                            <button class="btn-schedule btn-schedule--secondary" onclick="location.reload()">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="23 4 23 10 17 10"></polyline>
+                                    <polyline points="1 20 1 14 7 14"></polyline>
+                                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                                </svg>
+                                Обновить
+                            </button>
+                        </div>
+                        <div class="modeus-iframe-wrapper">
+                            <div class="modeus-loading" id="loading">
+                                <div class="modeus-loading-spinner"></div>
+                                <span>Загрузка расписания...</span>
+                            </div>
+                            <iframe 
+                                src="{{ modeus_embed_url }}" 
+                                title="Расписание Modeus"
+                                allow="clipboard-write; fullscreen"
+                                onload="document.getElementById('loading').style.display = 'none';"
+                            ></iframe>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <p>Сайт на Flask · Расписание с <a href="https://sfedu.modeus.org" target="_blank" style="color: rgba(255,255,255,0.8); text-decoration: underline;">Modeus</a></p>
+    </footer>
+
+    <script>
+    </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "vk_group_id": 66692771,
+  "vk_widget_width": "100%",
+  "vk_access_token": "YOUR_VK_ACCESS_TOKEN_HERE",
+  "modeus_url": "https://sfedu.modeus.org/schedule-calendar/my?timeZone=%22Europe%2FMoscow%22&calendar=%7B%22view%22:%22agendaWeek%22,%22date%22:%222026-03-16%22%7D&grid=%22Grid.05%22",
+  "modeus_embed_url": "https://sfedu.modeus.org/schedule-calendar/my?timeZone=%22Europe%2FMoscow%22&calendar=%7B%22view%22:%22agendaWeek%22,%22date%22:%222026-03-16%22%7D&grid=%22Grid.05%22"
+}

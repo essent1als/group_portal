@@ -1,0 +1,72 @@
+/* --- Страница ссылок --- */
+
+/* Список ссылок */
+.link-list {
+    padding-left: 18px;
+    margin: 0;
+}
+
+.link-list li {
+    margin: 10px 0;
+}
+
+.link-list a {
+    color: #1a3d85;
+    font-weight: 600;
+}
+
+/* Сетка для ссылок */
+.link-list--grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    padding-left: 0;
+    list-style: none;
+}
+
+.link-list--grid li {
+    margin: 0;
+}
+
+.link-card a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    color: #2b3a4a;
+    font-weight: 500;
+}
+
+.link-card a:hover {
+    background: #eef2f7;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    text-decoration: none;
+    color: #2b3a4a;
+}
+
+.link-icon {
+    font-size: 1.4rem;
+}
+
+/* Категории ссылок */
+.links-category {
+    margin-bottom: 32px;
+}
+
+.links-category:last-child {
+    margin-bottom: 0;
+}
+
+.links-category__title {
+    margin: 0 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #4a76a8;
+    font-size: 1.2rem;
+    color: #2b3a4a;
+}

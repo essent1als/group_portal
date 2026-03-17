@@ -1,0 +1,208 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Портал РТбо1-25</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <div class="header-logo-row">
+                <img src="{{ url_for('static', filename='img/sfedu.png') }}" alt="Логотип ЮФУ" class="header-logo">
+                <h1>Портал РТбо1-25</h1>
+                <img src="{{ url_for('static', filename='img/irtsu.png') }}" alt="ИРТСУ" class="header-logo">
+            </div>
+            <nav class="main-nav">
+                <a href="{{ url_for('home') }}">Главная</a>
+                <a href="{{ url_for('schedule_page') }}">Расписание</a>
+                <a href="{{ url_for('links_page') }}">Ссылки</a>
+                {% if group %}
+                    <a href="#group" class="nav-small">Список группы</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <main class="page">
+        <div class="page-inner">
+            <div class="grid">
+                <div class="left-column">
+                    <section class="card">
+                        <h2>Расписание на сегодня</h2>
+
+                        <div style="margin-bottom: 16px;">
+                            <iframe 
+                                id="today-schedule-iframe"
+                                title="Расписание Modeus"
+                                class="today-schedule-iframe"
+                            ></iframe>
+                        </div>
+
+                        <p>
+                            <a href="{{ url_for('schedule_page') }}" style="color: #4a76a8; font-weight: 600;">
+                                ↗ Полное расписание
+                            </a>
+                        </p>
+
+                        <script>
+                            (function() {
+                                const today = new Date();
+                                const year = today.getFullYear();
+                                const month = String(today.getMonth() + 1).padStart(2, '0');
+                                const day = String(today.getDate()).padStart(2, '0');
+                                const dateStr = `${year}-${month}-${day}`;
+                                
+                                const baseUrl = 'https://sfedu.modeus.org/schedule-calendar/my';
+                                const params = new URLSearchParams({
+                                    timeZone: '"Europe/Moscow"',
+                                    calendar: JSON.stringify({
+                                        view: 'agendaDay',
+                                        date: dateStr
+                                    }),
+                                    grid: '"Grid.05"'
+                                });
+                                
+                                document.getElementById('today-schedule-iframe').src = baseUrl + '?' + params.toString();
+                            })();
+                        </script>
+                    </section>
+
+                    <section class="card card--large vk-news-section">
+                        <div class="vk-news-title-row">
+                            <div class="vk-group-list-inline">
+                                <button class="vk-group-btn active" data-group-id="66692771" data-group-name="ИРТСУ" data-group-avatar="https://sun9-61.userapi.com/s/v1/ig2/K4Iit0A3L_SPSoBoRSLhoUsDkr4G9kEb9gmzdNhIe2zPajJMeKDs9es9fx7tqzPXjipUo2G7wm3716wNN9PdpmS7.jpg?quality=96&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,476x476&from=bu&cs=476x0">ИРТСУ</button>
+                                <button class="vk-group-btn" data-group-id="182057604" data-group-name="ТКСФ" data-group-avatar="https://sun9-18.userapi.com/s/v1/ig2/1uoKP_b08E8oAtAkwntnFpsgGgqPTE2Nq49TrfNP44PxjPpovVTXrQM8LJKQzSwSz8H_SNO0CoOOCDEGKz6WYgyN.jpg?quality=95&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720,1002x1002&from=bu&cs=1002x0">ТКСФ</button>
+                                <button class="vk-group-btn" data-group-id="172789021" data-group-name="СКБ" data-group-avatar="https://sun9-10.userapi.com/s/v1/ig2/1XaaWF7Ed9rv-NGvsxHVXGpd0VEqmWJUVg0w1nOKTFwjoOQhAEoDpePH9opIngmAU3fXWY1KsdAV_iLO6zs5igr_.jpg?quality=95&as=32x18,48x27,72x41,108x61,160x90,240x136,360x203,480x271,540x305,640x361,720x407,1080x610,1280x723,1440x813,2560x1446&from=bu&cs=2560x0">СКБ</button>
+                                <button class="vk-group-btn" data-group-id="226229459" data-group-name="ПИШ" data-group-avatar="https://sun9-87.userapi.com/s/v1/ig2/8lnVjVgKB5nhpEMEBJ1E6Z6f2JlyXlCgP9gua0O0inkrNGX11YEwus2_lzdjHbBNZJRTwiNolFRL6m9kwigdTglC.jpg?quality=95&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640&from=bu&cs=640x0">ПИШ</button>
+                            </div>
+                            <h2 style="text-align: center;">Новости</h2>
+                        </div>
+
+                        <div class="vk-news-header">
+                            <img src="https://sun9-61.userapi.com/s/v1/ig2/K4Iit0A3L_SPSoBoRSLhoUsDkr4G9kEb9gmzdNhIe2zPajJMeKDs9es9fx7tqzPXjipUo2G7wm3716wNN9PdpmS7.jpg?quality=96&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,476x476&from=bu&cs=476x0" alt="Логотип группы" class="vk-group-avatar">
+                            <span class="vk-group-name">Новости ВК</span>
+                        </div>
+
+                        <div class="vk-news-widget-container" id="vk-news-widget" role="region" aria-label="Новости ВКонтакте"></div>
+
+                        <p class="muted" style="margin-top: 12px; font-size: 0.9rem; display: none;" id="vk-news-error">
+                            Не удалось загрузить виджет новостей. Проверьте консоль браузера и отключите блокировщики.
+                        </p>
+                    </section>
+                </div>
+
+                <aside class="sidebar">
+                    <section class="card">
+                        <h2>Полезные ссылки</h2>
+                        {% if links %}
+                            <ul class="link-list">
+                                {% for link in links %}
+                                    <li><a href="{{ link.url }}" target="_blank" rel="noopener noreferrer">{{ link.name }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="muted">Ссылок пока нет. Добавьте данные в <code>data/links.json</code>.</p>
+                        {% endif %}
+                    </section>
+
+                    {% if group %}
+                        <section id="group" class="card">
+                            <h2>Список группы</h2>
+                            <ul class="members">
+                                {% for person in group %}
+                                    <li class="member">
+                                        {% if person.avatar %}
+                                            <img class="member__avatar" src="{{ person.avatar }}" alt="{{ person.name }}">
+                                        {% else %}
+                                            <span class="member__avatar member__avatar--placeholder">{{ person.name[:1] }}</span>
+                                        {% endif %}
+                                        <span class="member__name">{{ loop.index }}. {{ person.name }}</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </section>
+                    {% endif %}
+                </aside>
+            </div>
+
+            <footer class="site-footer">
+                <p>Сайт портала группы</p>
+            </footer>
+        </div>
+    </main>
+
+    <script src="https://vk.com/js/api/openapi.js?169"></script>
+    <script>
+        let currentGroupId = 66692771;
+        
+        function initVkNewsWidget(groupId) {
+            if (!window.VK || !VK.Widgets || !VK.Widgets.Group) return false;
+            
+            const container = document.getElementById('vk-news-widget');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            try {
+                VK.Widgets.Group('vk-news-widget', {mode: 4, width: 'auto', height: '550'}, groupId);
+            } catch(e) { 
+                console.warn('VK error:', e);
+                document.getElementById('vk-news-error').style.display = 'block';
+            }
+            return true;
+        }
+        
+        function switchGroup(groupId, groupName, groupAvatar) {
+            currentGroupId = groupId;
+            
+            // Обновляем активную кнопку
+            document.querySelectorAll('.vk-group-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (parseInt(btn.dataset.groupId) === groupId) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Обновляем подзаголовок
+            const groupNameEl = document.querySelector('.vk-group-name');
+            if (groupNameEl && groupName) {
+                groupNameEl.textContent = 'Новости ' + groupName;
+            }
+            
+            // Обновляем аватарку
+            const groupAvatarEl = document.querySelector('.vk-group-avatar');
+            if (groupAvatarEl && groupAvatar) {
+                groupAvatarEl.src = groupAvatar;
+            }
+            
+            // Пересоздаём виджет
+            initVkNewsWidget(groupId);
+        }
+        
+        // Обработчики для кнопок выбора групп
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.vk-group-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const groupId = parseInt(this.dataset.groupId);
+                    const groupName = this.dataset.groupName;
+                    const groupAvatar = this.dataset.groupAvatar;
+                    switchGroup(groupId, groupName, groupAvatar);
+                });
+            });
+            
+            // Инициализация виджета
+            if (initVkNewsWidget(currentGroupId)) return;
+            
+            const attempts = 10;
+            let count = 0;
+            const interval = setInterval(() => {
+                if (initVkNewsWidget(currentGroupId) || ++count >= attempts) {
+                    clearInterval(interval);
+                }
+            }, 300);
+        });
+    </script>
+
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</body>
+</html>

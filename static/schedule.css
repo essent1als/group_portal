@@ -1,0 +1,227 @@
+/* --- Страница расписания --- */
+.schedule-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.schedule-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.schedule-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #2b3a4a;
+}
+
+.modeus-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #003399, #001a66);
+    color: #fff;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.modeus-badge svg {
+    width: 18px;
+    height: 18px;
+}
+
+.schedule-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.schedule-tab {
+    padding: 10px 20px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 8px;
+    background: #fff;
+    color: #2b3a4a;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 160ms ease;
+}
+
+.schedule-tab:hover {
+    background: rgba(74, 118, 168, 0.1);
+    border-color: rgba(74, 118, 168, 0.3);
+}
+
+.schedule-tab.active {
+    background: #4a76a8;
+    border-color: #4a76a8;
+    color: #fff;
+}
+
+.schedule-view {
+    display: none;
+}
+
+.schedule-view.active {
+    display: block;
+}
+
+.modeus-iframe-wrapper {
+    width: 100%;
+    min-height: 600px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    position: relative;
+}
+
+.modeus-iframe-wrapper iframe {
+    width: 100%;
+    min-height: 600px;
+    border: none;
+}
+
+.modeus-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    color: rgba(43, 58, 74, 0.6);
+}
+
+.modeus-loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(74, 118, 168, 0.2);
+    border-top-color: #4a76a8;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.schedule-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.btn-schedule {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 160ms ease;
+    text-decoration: none;
+}
+
+.btn-schedule--primary {
+    background: #003399;
+    color: #fff;
+    border: none;
+}
+
+.btn-schedule--primary:hover {
+    background: #002266;
+    transform: translateY(-1px);
+}
+
+.btn-schedule--secondary {
+    background: #fff;
+    color: #2b3a4a;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.btn-schedule--secondary:hover {
+    background: rgba(74, 118, 168, 0.1);
+    border-color: rgba(74, 118, 168, 0.3);
+}
+
+.btn-schedule svg {
+    width: 18px;
+    height: 18px;
+}
+
+.modeus-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    background: rgba(74, 118, 168, 0.08);
+    border-radius: 10px;
+    margin-bottom: 16px;
+}
+
+.modeus-notice svg {
+    width: 20px;
+    height: 20px;
+    color: #4a76a8;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.modeus-notice p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: rgba(43, 58, 74, 0.8);
+    line-height: 1.5;
+}
+
+.schedule-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: rgba(43, 58, 74, 0.65);
+}
+
+.schedule-empty-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+@media (max-width: 600px) {
+    .schedule-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .schedule-tabs {
+        width: 100%;
+    }
+
+    .schedule-tab {
+        flex: 1;
+        text-align: center;
+        min-width: 100px;
+    }
+
+    .modeus-iframe-wrapper {
+        min-height: 500px;
+    }
+
+    .modeus-iframe-wrapper iframe {
+        min-height: 500px;
+    }
+}
