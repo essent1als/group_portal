@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Расписание — Портал группы</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='schedule.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='mobile.css') }}">
 </head>
 <body>
@@ -18,7 +17,7 @@
             </div>
             <nav class="main-nav">
                 <a href="{{ url_for('home') }}">Главная</a>
-                <a href="{{ url_for('schedule_page') }}" class="active">Расписание</a>
+                <a href="{{ url_for('schedule_page') }}">Расписание</a>
                 <a href="{{ url_for('links_page') }}">Ссылки</a>
                 <a href="{{ url_for('announcements_page') }}">Объявления</a>
             </nav>
@@ -28,16 +27,9 @@
     <main class="page">
         <div class="page-inner">
             <div class="card">
-                <div class="schedule-container">
-                    <p><a href="{{ modeus_url }}" target="_blank">Открыть расписание в Modeus ↗</a></p>
-                    <iframe 
-                        src="{{ modeus_embed_url }}"
-                        width="100%"
-                        height="600"
-                        frameborder="0"
-                        title="Расписание Modeus"
-                    ></iframe>
-                </div>
+                <h2>Расписание</h2>
+                <p>Откройте на компьютере для просмотра расписания:</p>
+                <p><a href="{{ modeus_url }}" target="_blank" style="font-size: 16px; color: #4a76a8;">↗ Открыть Modeus</a></p>
             </div>
         </div>
     </main>
