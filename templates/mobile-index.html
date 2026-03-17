@@ -53,7 +53,46 @@
                 <!-- Расписание на сегодня -->
                 <section class="card">
                     <h2>Расписание на сегодня</h2>
+                    <div style="margin-bottom: 12px;">
+                        <iframe 
+                            id="today-schedule-iframe"
+                            title="Расписание Modeus"
+                            style="width: 100%; height: 300px; border: none; border-radius: 8px;"
+                            onload="this.parentElement.querySelector('.schedule-fallback').style.display = 'none';">
+                        </iframe>
+                        <div class="schedule-fallback" style="display: none;">
+                            <p style="color: #666; font-size: 14px;">Не удалось загрузить расписание</p>
+                        </div>
+                    </div>
                     <p><a href="{{ url_for('schedule_page') }}">↗ Полное расписание</a></p>
+                    <script>
+                        (function() {
+                            const today = new Date();
+                            const year = today.getFullYear();
+                            const month = String(today.getMonth() + 1).padStart(2, '0');
+                            const day = String(today.getDate()).padStart(2, '0');
+                            const dateStr = `${year}-${month}-${day}`;
+                            
+                            const baseUrl = 'https://sfedu.modeus.org/schedule-calendar/my';
+                            const params = new URLSearchParams({
+                                timeZone: '"Europe/Moscow"',
+                                calendar: JSON.stringify({
+                                    view: 'agendaDay',
+                                    date: dateStr
+                                }),
+                                grid: '"Grid.05"'
+                            });
+                            
+                            const iframe = document.getElementById('today-schedule-iframe');
+                            if (iframe) {
+                                iframe.src = baseUrl + '?' + params.toString();
+                                iframe.onerror = function() {
+                                    this.style.display = 'none';
+                                    this.parentElement.querySelector('.schedule-fallback').style.display = 'block';
+                                };
+                            }
+                        })();
+                    </script>
                 </section>
 
                 <!-- Новости -->
@@ -115,5 +154,69 @@
     </main>
 
     <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    <script src="https://vk.com/js/api/openapi.js?169"></script>
+    <script>
+        let currentGroupId = 66692771;
+        
+        function initVkNewsWidget(groupId) {
+            if (!window.VK || !VK.Widgets || !VK.Widgets.Group) return false;
+            
+            const container = document.getElementById('vk-news-widget');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            try {
+                VK.Widgets.Group('vk-news-widget', {mode: 4, width: 'auto', height: '400'}, groupId);
+            } catch(e) { 
+                console.warn('VK error:', e);
+                document.getElementById('vk-news-error').style.display = 'block';
+            }
+            return true;
+        }
+        
+        function switchGroup(groupId, groupName, groupAvatar) {
+            currentGroupId = groupId;
+            
+            document.querySelectorAll('.vk-group-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (parseInt(btn.dataset.groupId) === groupId) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            const groupNameEl = document.querySelector('.vk-group-name');
+            if (groupNameEl && groupName) {
+                groupNameEl.textContent = 'Новости ' + groupName;
+            }
+            
+            const groupAvatarEl = document.querySelector('.vk-group-avatar');
+            if (groupAvatarEl && groupAvatar) {
+                groupAvatarEl.src = groupAvatar;
+            }
+            
+            initVkNewsWidget(groupId);
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.vk-group-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const groupId = parseInt(this.dataset.groupId);
+                    const groupName = this.dataset.groupName;
+                    const groupAvatar = this.dataset.groupAvatar;
+                    switchGroup(groupId, groupName, groupAvatar);
+                });
+            });
+            
+            if (initVkNewsWidget(currentGroupId)) return;
+            
+            const attempts = 10;
+            let count = 0;
+            const interval = setInterval(() => {
+                if (initVkNewsWidget(currentGroupId) || ++count >= attempts) {
+                    clearInterval(interval);
+                }
+            }, 300);
+        });
+    </script>
 </body>
 </html>

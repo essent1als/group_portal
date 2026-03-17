@@ -68,6 +68,10 @@ def home():
     full_schedule = _load_json("data/schedule.json", [])
     today_schedule = _get_today_schedule(full_schedule)
     
+    config = _load_json("data/config.json", {})
+    modeus_url = config.get("modeus_url", "https://sfedu.modeus.org")
+    modeus_embed = config.get("modeus_embed_url", "https://sfedu.modeus.org/schedule")
+    
     user_agent = request.headers.get('User-Agent', '')
     is_mobile = is_mobile_device(user_agent)
     template = "mobile-index.html" if is_mobile else "index.html"
@@ -80,6 +84,8 @@ def home():
         announcements=_load_json("data/announcements.json", []),
         group=_load_json("data/group.json", []),
         vk_config=_load_json("data/config.json", {"vk_group_id": 66692771, "vk_widget_width": "100%"}),
+        modeus_url=modeus_url,
+        modeus_embed_url=modeus_embed,
     )
 
 
