@@ -61,22 +61,22 @@
 
                         <!-- Переключатель -->
                         <div class="schedule-tabs" style="margin-bottom: 16px;">
-                            <button class="schedule-tab active" onclick="showTodayMode('iframe')" id="today-mode-iframe">🌐 Modeus</button>
-                            <button class="schedule-tab" onclick="showTodayMode('parsed')" id="today-mode-parsed">📋 Данные</button>
+                            <button class="schedule-tab active" onclick="showTodayMode('parsed')" id="today-mode-parsed">📋 Данные</button>
+                            <button class="schedule-tab" onclick="showTodayMode('iframe')" id="today-mode-iframe">🌐 Modeus</button>
+                        </div>
+
+                        <!-- Режим данных (статическое расписание на сегодня) -->
+                        <div id="today-view-parsed" style="margin-bottom: 16px;">
+                            <div id="today-schedule-data"></div>
                         </div>
 
                         <!-- Режим iframe -->
-                        <div id="today-view-iframe" style="margin-bottom: 16px;">
+                        <div id="today-view-iframe" style="display: none; margin-bottom: 16px;">
                             <iframe 
                                 id="today-schedule-iframe"
                                 title="Расписание Modeus"
                                 class="today-schedule-iframe"
                             ></iframe>
-                        </div>
-
-                        <!-- Режим данных (статическое расписание на сегодня) -->
-                        <div id="today-view-parsed" style="display: none; margin-bottom: 16px;">
-                            <div id="today-schedule-data"></div>
                         </div>
 
                         <p>
@@ -98,6 +98,9 @@
                                     loadTodaySchedule();
                                 }
                             }
+                            
+                            // По умолчанию показываем статические данные
+                            showTodayMode('parsed');
                             
                             // Загрузка расписания на сегодня
                             async function loadTodaySchedule() {
