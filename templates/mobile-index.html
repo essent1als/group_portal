@@ -35,8 +35,14 @@
                     
                     {% if today_lessons %}
                         {% for lesson in today_lessons %}
-                            <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
-                                <div style="font-weight: bold; color: #333;">{{ lesson.time }}</div>
+                            {% set type = lesson.type|default('Практика') %}
+                            {% set type_bg = '#cfeafc' if type == 'Практика' else '#dcedc8' if type == 'Лекция' else '#ffe0b2' if type == 'Лабораторная' else '#f8f9fa' %}
+                            {% set type_border = '#bbdefb' if type == 'Практика' else '#d3e8bc' if type == 'Лекция' else '#f7d7a6' if type == 'Лабораторная' else '#dee2e6' %}
+                            {% set pair_num = '1' if '8:00' in lesson.time else '2' if '9:50' in lesson.time else '3' if '11:55' in lesson.time else '4' if '13:45' in lesson.time else '5' if '15:50' in lesson.time else '6' if '17:35' in lesson.time else '7' if '19:15' in lesson.time else '' %}
+                            <div style="background: {{ type_bg }}; border-left: 4px solid {{ type_border }}; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
+                                <div style="font-weight: bold; color: #333;">
+                                    {% if pair_num %}{{ pair_num }} пара · {% endif %}{{ lesson.time }}
+                                </div>
                                 <div style="font-size: 16px; margin: 5px 0;">{{ lesson.subject }}</div>
                                 <div style="color: #666; font-size: 14px;">
                                     <span>{{ lesson.type }}</span>
