@@ -21,7 +21,6 @@
                 <a href="{{ url_for('schedule_page') }}">Расписание</a>
                 <a href="{{ url_for('links_page') }}">Ссылки</a>
                 <a href="{{ url_for('announcements_page') }}">Объявления</a>
-                <button class="theme-toggle" id="theme-toggle" title="Сменить тему">🌙</button>
             </nav>
         </div>
     </header>
@@ -219,25 +218,6 @@
                 }
             });
             backToTop.style.display = 'none';
-        }
-        
-        // Переключение темы
-        const themeToggle = document.getElementById('theme-toggle');
-        if (themeToggle) {
-            // Проверка сохранённой темы
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme) {
-                document.documentElement.setAttribute('data-theme', savedTheme);
-                themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
-            }
-            
-            themeToggle.addEventListener('click', () => {
-                const currentTheme = document.documentElement.getAttribute('data-theme');
-                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                document.documentElement.setAttribute('data-theme', newTheme);
-                localStorage.setItem('theme', newTheme);
-                themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-            });
         }
     </script>
 </body>

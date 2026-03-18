@@ -46,6 +46,7 @@
                     <div class="schedule-tabs">
                         <button class="schedule-tab active" onclick="showMode('parsed')" id="mode-parsed">📋 Данные</button>
                         <button class="schedule-tab" onclick="showMode('iframe')" id="mode-iframe">🌐 Modeus</button>
+                        <button class="schedule-tab" onclick="enableEditMode()" id="mode-edit">✏️ Редактировать</button>
                     </div>
 
                     <!-- Кнопка открытия в Modeus -->
@@ -58,6 +59,14 @@
                             </svg>
                             Открыть в Modeus
                         </a>
+                        <button onclick="saveAllChanges()" class="btn-schedule btn-schedule--secondary" id="save-btn" style="display: none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                <polyline points="7 3 7 8 15 8"></polyline>
+                            </svg>
+                            Сохранить изменения
+                        </button>
                     </div>
 
                     <!-- Режим данных (статическое расписание) -->
@@ -90,6 +99,44 @@
         </div>
     </main>
 
+    <!-- Модальное окно для добавления пары -->
+    <div id="lesson-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Добавить пару</h3>
+                <span class="close-modal" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-week">
+                <input type="hidden" id="edit-day">
+                <input type="hidden" id="edit-pair">
+                
+                <div class="form-group">
+                    <label for="lesson-subject">Название предмета:</label>
+                    <input type="text" id="lesson-subject" placeholder="Например: Высшая математика">
+                </div>
+                
+                <div class="form-group">
+                    <label for="lesson-type">Тип пары:</label>
+                    <select id="lesson-type">
+                        <option value="Лекция">Лекция</option>
+                        <option value="Практика">Практика</option>
+                        <option value="Лабораторная">Лабораторная</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="lesson-room">Место проведения:</label>
+                    <input type="text" id="lesson-room" placeholder="Например: Г-333">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal()">Отмена</button>
+                <button class="btn-save" onclick="saveLesson()">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
     <footer class="site-footer">
         <p>Сайт портала группы · <a href="https://sfedu.modeus.org" target="_blank" style="color: rgba(255,255,255,0.8);">Modeus</a></p>
     </footer>
@@ -97,19 +144,48 @@
     <script>
         const MODEUS_URL = "{{ modeus_url }}";
         const MODEUS_EMBED_URL = "{{ modeus_embed_url }}";
+        let scheduleData = {};
+        let isEditMode = false;
+        
+        // Карта времени -> номер пары
+        const pairTimes = {
+            1: '8:00 - 9:35',
+            2: '9:50 - 11:25',
+            3: '11:55 - 13:30',
+            4: '13:45 - 15:20',
+            5: '15:50 - 17:25',
+            6: '17:35 - 19:10',
+            7: '19:15 - 20:50'
+        };
         
         // Переключение режимов
         function showMode(mode) {
             document.getElementById('view-iframe').style.display = mode === 'iframe' ? 'block' : 'none';
-            document.getElementById('view-parsed').style.display = mode === 'parsed' ? 'block' : 'none';
+            document.getElementById('view-parsed').style.display = mode === 'parsed' || mode === 'edit' ? 'block' : 'none';
             
             document.getElementById('mode-iframe').classList.toggle('active', mode === 'iframe');
-            document.getElementById('mode-parsed').classList.toggle('active', mode === 'parsed');
+            document.getElementById('mode-parsed').classList.toggle('active', mode === 'parsed' || mode === 'edit');
+            document.getElementById('mode-edit').classList.toggle('active', mode === 'edit');
             
             localStorage.setItem('scheduleMode', mode);
             
-            if (mode === 'parsed') {
+            if (mode === 'parsed' || mode === 'edit') {
                 loadStaticSchedule();
+            }
+        }
+        
+        // Переключение режима редактирования (может включать/выключать)
+        function enableEditMode() {
+            if (isEditMode) {
+                // Выключаем режим редактирования
+                isEditMode = false;
+                document.getElementById('save-btn').style.display = 'none';
+                showMode('parsed');
+            } else {
+                // Включаем режим редактирования
+                isEditMode = true;
+                document.getElementById('save-btn').style.display = 'inline-flex';
+                showMode('edit');
             }
         }
         
@@ -118,8 +194,8 @@
             try {
                 const response = await fetch('/data/schedule_static.json');
                 if (response.ok) {
-                    const data = await response.json();
-                    displaySchedule(data);
+                    scheduleData = await response.json();
+                    displaySchedule(scheduleData);
                 } else {
                     document.getElementById('schedule-data').innerHTML = 
                         '<p style="color: #666; text-align: center; padding: 20px;">Расписание не загружено</p>';
@@ -199,13 +275,20 @@
                     
                     for (let pairNum = 1; pairNum <= totalPairs; pairNum++) {
                         const lesson = lessonMap[pairNum];
+                        const pairTime = pairTimes[pairNum] || '';
+                        const cellId = `${week}|${day}|${pairNum}`;
                         
                         if (lesson) {
                             const bgColor = getTypeColor(lesson.type);
                             const borderColor = getTypeBorderColor(lesson.type);
                             
+                            // Кнопка удаления (минус) для режима редактирования
+                            const deleteBtn = isEditMode ? 
+                                `<button class="edit-btn delete-btn" onclick="removeLesson('${week}', '${day}', ${pairNum})" title="Удалить">−</button>` : '';
+                            
                             html += `
-                            <div style="background: ${bgColor}; border: 2px solid ${borderColor}; border-radius: 12px; padding: 12px; width: 170px; flex-shrink: 0;">
+                            <div style="background: ${bgColor}; border: 2px solid ${borderColor}; border-radius: 12px; padding: 12px; width: 170px; flex-shrink: 0; position: relative;">
+                                ${deleteBtn}
                                 <!-- Номер пары -->
                                 <div style="background: rgba(0,0,0,0.1); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; margin-bottom: 6px;">
                                     ${pairNum}
@@ -213,7 +296,7 @@
                                 
                                 <!-- Время -->
                                 <div style="font-weight: bold; font-size: 12px; color: #333; margin-bottom: 3px;">
-                                    ${lesson.time || ''}
+                                    ${pairTime}
                                 </div>
                                 
                                 <!-- Название предмета -->
@@ -231,8 +314,12 @@
                             </div>`;
                         } else {
                             // Пустой блок для пар без занятий
+                            const addBtn = isEditMode ? 
+                                `<button class="edit-btn add-btn" onclick="openAddModal('${week}', '${day}', ${pairNum})" title="Добавить">+</button>` : '';
+                            
                             html += `
-                            <div style="background: #f8f9fa; border: 2px dashed #dee2e6; border-radius: 12px; padding: 12px; width: 170px; flex-shrink: 0; text-align: center; color: #999;">
+                            <div style="background: #f8f9fa; border: 2px dashed #dee2e6; border-radius: 12px; padding: 12px; width: 170px; flex-shrink: 0; text-align: center; color: #999; position: relative;">
+                                ${addBtn}
                                 <div style="background: rgba(0,0,0,0.1); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; margin-bottom: 6px; margin-left: auto; margin-right: auto;">
                                     ${pairNum}
                                 </div>
@@ -254,8 +341,141 @@
             document.getElementById('schedule-data').innerHTML = html;
         }
         
+        // Открытие модального окна для добавления пары
+        function openAddModal(week, day, pairNum) {
+            document.getElementById('edit-week').value = week;
+            document.getElementById('edit-day').value = day;
+            document.getElementById('edit-pair').value = pairNum;
+            document.getElementById('modal-title').textContent = 'Добавить пару';
+            
+            // Очистка полей
+            document.getElementById('lesson-subject').value = '';
+            document.getElementById('lesson-type').value = 'Лекция';
+            document.getElementById('lesson-room').value = '';
+            
+            document.getElementById('lesson-modal').style.display = 'block';
+        }
+        
+        // Закрытие модального окна
+        function closeModal() {
+            document.getElementById('lesson-modal').style.display = 'none';
+        }
+        
+        // Сохранение пары
+        function saveLesson() {
+            const week = document.getElementById('edit-week').value;
+            const day = document.getElementById('edit-day').value;
+            const pairNum = parseInt(document.getElementById('edit-pair').value);
+            const subject = document.getElementById('lesson-subject').value;
+            const type = document.getElementById('lesson-type').value;
+            const room = document.getElementById('lesson-room').value;
+            
+            if (!subject.trim()) {
+                alert('Пожалуйста, введите название предмета');
+                return;
+            }
+            
+            // Создаём новую пару
+            const newLesson = {
+                time: pairTimes[pairNum],
+                subject: subject,
+                type: type,
+                teacher: '',
+                room: room
+            };
+            
+            // Добавляем в данные
+            if (!scheduleData[week]) scheduleData[week] = {};
+            if (!scheduleData[week][day]) {
+                scheduleData[week][day] = { date: '', lessons: [] };
+            }
+            if (!scheduleData[week][day].lessons) {
+                scheduleData[week][day].lessons = [];
+            }
+            
+            // Удаляем старую пару с таким же номером, если есть
+            scheduleData[week][day].lessons = scheduleData[week][day].lessons.filter(l => {
+                const num = getPairNumber(l.time);
+                return num !== pairNum;
+            });
+            
+            // Добавляем новую пару
+            scheduleData[week][day].lessons.push(newLesson);
+            
+            // Перерисовываем расписание
+            displaySchedule(scheduleData);
+            closeModal();
+        }
+        
+        // Удаление пары (нажатие на минус)
+        function removeLesson(week, day, pairNum) {
+            if (!confirm('Вы уверены, что хотите удалить эту пару?')) {
+                return;
+            }
+            
+            if (scheduleData[week] && scheduleData[week][day] && scheduleData[week][day].lessons) {
+                scheduleData[week][day].lessons = scheduleData[week][day].lessons.filter(l => {
+                    const num = getPairNumber(l.time);
+                    return num !== pairNum;
+                });
+            }
+            
+            displaySchedule(scheduleData);
+        }
+        
+        // Сохранение всех изменений
+        async function saveAllChanges() {
+            try {
+                const response = await fetch('/api/save-schedule', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(scheduleData)
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('Расписание сохранено!');
+                } else {
+                    alert('Ошибка сохранения: ' + result.error);
+                }
+            } catch(e) {
+                console.error('Error saving:', e);
+                alert('Ошибка сохранения расписания');
+            }
+        }
+        
+        // Вспомогательная функция для получения номера пары
+        function getPairNumber(timeStr) {
+            if (!timeStr) return '';
+            const pairNumbers = {
+                '08:00': 1, '8:00': 1,
+                '09:50': 2, '9:50': 2,
+                '11:55': 3, '11:55': 3,
+                '13:45': 4, '13:45': 4,
+                '15:50': 5, '15:50': 5,
+                '17:35': 6, '17:35': 6,
+                '19:15': 7, '19:15': 7
+            };
+            const startTime = timeStr.split(' - ')[0];
+            return pairNumbers[startTime] || '';
+        }
+        
+        // Закрытие модального окна при клике вне его
+        window.onclick = function(event) {
+            const modal = document.getElementById('lesson-modal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+        
         // Восстановление режима
         const savedMode = localStorage.getItem('scheduleMode') || 'parsed';
+        if (savedMode === 'edit') {
+            isEditMode = true;
+            document.getElementById('save-btn').style.display = 'inline-flex';
+        }
         showMode(savedMode);
     </script>
 </body>
