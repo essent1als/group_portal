@@ -100,7 +100,10 @@ def _get_today_lessons_from_static(static_schedule):
     if week_key in static_schedule:
         week_schedule = static_schedule[week_key]
         if today_name in week_schedule:
-            return week_schedule[today_name]
+            day_data = week_schedule[today_name]
+            if isinstance(day_data, dict) and 'lessons' in day_data:
+                return day_data['lessons']
+            return day_data
     
     return []
 

@@ -29,7 +29,8 @@
 
 /* Хедер - логотипы по бокам от заголовка */
 .site-header {
-    padding: 10px 15px;
+    padding: 12px 15px;
+    background: #4a76a8;
 }
 
 .header-logo-row {
@@ -41,8 +42,9 @@
 }
 
 .header-logo {
-    height: 35px;
+    height: 45px;
     width: auto;
+    filter: brightness(0) invert(1);
 }
 
 .site-header h1 {
@@ -51,35 +53,40 @@
     margin: 0;
     flex: 1;
     min-width: 0;
+    color: white;
 }
 
 /* Навигация - крупные кнопки */
 .main-nav {
     display: flex;
     justify-content: space-around;
-    padding: 12px 5px;
-    background: #f8f9fa;
-    border-top: 1px solid #dee2e6;
+    padding: 10px 8px;
+    background: #4a76a8;
     margin-top: 10px;
     flex-wrap: wrap;
-    gap: 5px;
+    gap: 6px;
 }
 
 .main-nav a {
-    padding: 12px 16px;
-    font-size: 15px;
+    padding: 10px 14px;
+    font-size: 14px;
     text-decoration: none;
-    color: #4a76a8;
-    border-radius: 8px;
-    background: transparent;
-    border: none;
+    color: white;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
     font-weight: 500;
+    transition: all 0.2s;
+}
+
+.main-nav a:hover {
+    background: rgba(255,255,255,0.25);
 }
 
 .main-nav a.active {
     font-weight: bold;
-    color: #2d4a6a;
-    background: #e3f2fd;
+    background: white;
+    color: #4a76a8;
 }
 
 /* Отступ для контента */
