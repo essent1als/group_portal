@@ -80,10 +80,8 @@ def _get_today_lessons_from_static(static_schedule):
     if weekday == 6:  # Воскресенье - нет пар
         return []
     
-    # Определяем четная или нечетная неделя (1-53)
-    week_number = today.isocalendar()[1]
-    is_even_week = week_number % 2 == 0
-    week_key = "week_2" if is_even_week else "week_1"
+    # Пока используем только week_1 (данные есть только для первой недели)
+    week_key = "week_1"
     
     # Дни недели на русском
     days_map = {
