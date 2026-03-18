@@ -2,6 +2,71 @@
    ОСНОВНЫЕ СТИЛИ - Глобальные настройки для всего сайта
    ========================================================================== */
 
+/* CSS переменные для темной темы */
+:root {
+    --bg-color: #1a1a2e;
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --text-color: #2b3a4a;
+    --text-muted: #6c757d;
+    --header-bg: linear-gradient(135deg, rgba(75, 106, 169, 0.85), rgba(0,30,100,0.85));
+}
+
+[data-theme="dark"] {
+    --bg-color: #121212;
+    --card-bg: #1e1e1e;
+    --text-color: #e0e0e0;
+    --text-muted: #a0a0a0;
+    --header-bg: linear-gradient(135deg, rgba(30, 60, 114, 0.95), rgba(15, 25, 80, 0.95));
+}
+
+[data-theme="dark"] body {
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .card {
+    background: var(--card-bg);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .card h2,
+[data-theme="dark"] .announcement-text,
+[data-theme="dark"] .link-list a,
+[data-theme="dark"] .member__name {
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .announcement-meta,
+[data-theme="dark"] .announcement-date,
+[data-theme="dark"] .muted {
+    color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .announcement-item {
+    background: #252525;
+    border-bottom: 1px solid #333;
+}
+
+[data-theme="dark"] .site-footer {
+    background: #0a0a0a;
+}
+
+/* Переключатель темы */
+.theme-toggle {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-left: 10px;
+}
+
+.theme-toggle:hover {
+    background: rgba(255,255,255,0.3);
+}
+
 /* Базовые настройки для всех элементов */
 *{
     box-sizing: border-box; /*-box-sizing: border-box включает padding и border в ширину/высоту элемента */

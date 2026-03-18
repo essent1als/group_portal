@@ -21,6 +21,7 @@
                 <a href="{{ url_for('schedule_page') }}">Расписание</a>
                 <a href="{{ url_for('links_page') }}">Ссылки</a>
                 <a href="{{ url_for('announcements_page') }}">Объявления</a>
+                <button class="theme-toggle" id="theme-toggle" title="Сменить тему">🌙</button>
             </nav>
         </div>
     </header>
@@ -204,6 +205,40 @@
                 }
             }, 300);
         });
+    </script>
+    <a href="#" class="back-to-top" id="backToTop" title="Наверх">↑</a>
+    <script>
+        // Кнопка наверх
+        const backToTop = document.getElementById('backToTop');
+        if (backToTop) {
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) {
+                    backToTop.style.display = 'flex';
+                } else {
+                    backToTop.style.display = 'none';
+                }
+            });
+            backToTop.style.display = 'none';
+        }
+        
+        // Переключение темы
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            // Проверка сохранённой темы
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+                themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+            }
+            
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            });
+        }
     </script>
 </body>
 </html>

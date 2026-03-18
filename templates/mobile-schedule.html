@@ -20,6 +20,7 @@
                 <a href="{{ url_for('schedule_page') }}">Расписание</a>
                 <a href="{{ url_for('links_page') }}">Ссылки</a>
                 <a href="{{ url_for('announcements_page') }}">Объявления</a>
+                <button class="theme-toggle" id="theme-toggle" title="Сменить тему">🌙</button>
             </nav>
         </div>
     </header>
@@ -100,6 +101,11 @@
                 return typeBorderColors[type] || '#dee2e6';
             }
             
+            // Определение текущего дня
+            const daysMap = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
+            const today = new Date();
+            const currentDay = daysMap[today.getDay() === 0 ? 6 : today.getDay() - 1]; // 0=Пн
+            
             let html = '';
             
             for (const [week, days] of Object.entries(data)) {
@@ -108,8 +114,10 @@
                 for (const [day, dayData] of Object.entries(days)) {
                     const dayDate = dayData && dayData.date ? dayData.date : '';
                     const lessons = dayData && dayData.lessons ? dayData.lessons : [];
+                    const isToday = day === currentDay;
+                    const dayStyle = isToday ? 'color: #fff; background: #4a76a8; padding: 8px 12px; border-radius: 8px; margin: 20px 0 10px 0;' : 'color: #333; margin: 20px 0 10px 0; padding-bottom: 8px; border-bottom: 2px solid #4a76a8;';
                     
-                    html += `<h4 style="color: #333; margin: 20px 0 10px 0; padding-bottom: 8px; border-bottom: 2px solid #4a76a8;">${day} <span style="color: #666; font-weight: normal; font-size: 12px;">${dayDate ? '(' + dayDate + ')' : ''}</span></h4>`;
+                    html += `<h4 style="${dayStyle}">${day} ${isToday ? '🔴' : ''} <span style="${isToday ? 'color: rgba(255,255,255,0.8);' : 'color: #666;'} font-weight: normal; font-size: 12px;">${dayDate ? '(' + dayDate + ')' : ''}</span></h4>`;
                     
                     if (lessons.length > 0) {
                         for (const lesson of lessons) {
@@ -152,6 +160,35 @@
         
         // Загружаем расписание при открытии страницы
         loadStaticSchedule();
+    </script>
+    <a href="#" class="back-to-top" id="backToTop" title="Наверх">↑</a>
+    <script>
+        // Кнопка наверх
+        const backToTop = document.getElementById('backToTop');
+        if (backToTop) {
+            window.addEventListener('scroll', () => {
+                backToTop.style.display = window.scrollY > 300 ? 'flex' : 'none';
+            });
+            backToTop.style.display = 'none';
+        }
+        
+        // Переключение темы
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+                themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+            }
+            
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            });
+        }
     </script>
 </body>
 </html>

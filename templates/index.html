@@ -22,6 +22,7 @@
                 {% if group %}
                     <a href="#group" class="nav-small">Список группы</a>
                 {% endif %}
+                <button class="theme-toggle" id="theme-toggle" title="Сменить тему">🌙</button>
             </nav>
         </div>
     </header>
@@ -366,5 +367,23 @@
     </script>
 
     <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+                themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+            }
+            
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            });
+        }
+    </script>
 </body>
 </html>
