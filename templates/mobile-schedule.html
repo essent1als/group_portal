@@ -111,28 +111,34 @@
                     const dayDate = dayData && dayData.date ? dayData.date : '';
                     const lessons = dayData && dayData.lessons ? dayData.lessons : [];
                     
-                    html += `<h4 style="color: #333; margin: 15px 0 10px 0;">${day} <span style="color: #666; font-weight: normal; font-size: 12px;">${dayDate ? '(' + dayDate + ')' : ''}</span></h4>`;
+                    html += `<h4 style="color: #333; margin: 20px 0 10px 0; padding-bottom: 8px; border-bottom: 2px solid #4a76a8;">${day} <span style="color: #666; font-weight: normal; font-size: 12px;">${dayDate ? '(' + dayDate + ')' : ''}</span></h4>`;
                     
                     if (lessons.length > 0) {
                         for (const lesson of lessons) {
                             const bgColor = getTypeColor(lesson.type);
                             const borderColor = getTypeBorderColor(lesson.type);
+                            const pairNum = getPairNumber(lesson.time);
                             
                             html += `
-                            <div style="background: ${bgColor}; border: 2px solid ${borderColor}; border-radius: 8px; padding: 12px; margin-bottom: 10px;">
-                                <div style="font-weight: bold; color: #333; margin-bottom: 4px;">
-                                    ${lesson.time || ''}
+                            <div style="background: ${bgColor}; border: 2px solid ${borderColor}; border-radius: 8px; padding: 12px; margin-bottom: 10px; display: flex; gap: 12px; align-items: flex-start;">
+                                <div style="background: rgba(0,0,0,0.1); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; flex-shrink: 0;">
+                                    ${pairNum}
                                 </div>
-                                <div style="font-size: 15px; margin-bottom: 4px;">${lesson.subject || ''}</div>
-                                <div style="color: #666; font-size: 13px;">
-                                    ${lesson.type || ''}
-                                    ${lesson.teacher ? ' · ' + lesson.teacher : ''}
-                                    ${lesson.room ? ' · ' + lesson.room : ''}
+                                <div style="flex: 1;">
+                                    <div style="font-weight: bold; color: #333; margin-bottom: 4px;">
+                                        ${lesson.time || ''}
+                                    </div>
+                                    <div style="font-size: 15px; margin-bottom: 4px;">${lesson.subject || ''}</div>
+                                    <div style="color: #666; font-size: 13px;">
+                                        ${lesson.type || ''}
+                                        ${lesson.teacher ? ' · ' + lesson.teacher : ''}
+                                        ${lesson.room ? ' · ' + lesson.room : ''}
+                                    </div>
                                 </div>
                             </div>`;
                         }
                     } else {
-                        html += `<div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px; text-align: center; color: #999;">
+                        html += `<div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 15px; text-align: center; color: #999; border: 1px dashed #dee2e6;">
                             Нет пар
                         </div>`;
                     }

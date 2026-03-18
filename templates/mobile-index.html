@@ -29,27 +29,6 @@
         <div class="page-inner">
             <div class="grid" style="display: flex; flex-direction: column;">
                 
-                <!-- Объявления -->
-                <section class="card">
-                    <h2>Объявления</h2>
-                    {% if announcements %}
-                        <ul class="announcement-list">
-                            {% for ann in announcements[:5] %}
-                                <li class="announcement-item">
-                                    <div class="announcement-meta">
-                                        <span class="announcement-author">{{ ann.author }}</span>
-                                        <span class="announcement-date">{{ ann.date }}</span>
-                                    </div>
-                                    <div class="announcement-text">{{ ann.text }}</div>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                        <p><a href="{{ url_for('announcements_page') }}">↗ Все объявления</a></p>
-                    {% else %}
-                        <p>Объявлений пока нет</p>
-                    {% endif %}
-                </section>
-
                 <!-- Расписание на сегодня -->
                 <section class="card">
                     <h2>Расписание на сегодня</h2>
@@ -77,16 +56,36 @@
                     <p><a href="{{ url_for('schedule_page') }}" style="color: #4a76a8;">↗ Полное расписание</a></p>
                 </section>
 
+                <!-- Объявления -->
+                <section class="card">
+                    <h2>Объявления</h2>
+                    {% if announcements %}
+                        <ul class="announcement-list">
+                            {% for ann in announcements[:5] %}
+                                <li class="announcement-item">
+                                    <div class="announcement-meta">
+                                        <span class="announcement-author">{{ ann.author }}</span>
+                                        <span class="announcement-date">{{ ann.date }}</span>
+                                    </div>
+                                    <div class="announcement-text">{{ ann.text }}</div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        <p><a href="{{ url_for('announcements_page') }}">↗ Все объявления</a></p>
+                    {% else %}
+                        <p>Объявлений пока нет</p>
+                    {% endif %}
+                </section>
+
                 <!-- Новости -->
                 <section class="card card--large vk-news-section">
-                    <div class="vk-news-title-row">
-                        <div class="vk-group-list-inline">
+                    <h2 style="text-align: center; margin-bottom: 15px;">Новости</h2>
+                    
+                    <div style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 15px;">
                             <button class="vk-group-btn active" data-group-id="66692771" data-group-name="ИРТСУ" data-group-avatar="https://sun9-61.userapi.com/s/v1/ig2/K4Iit0A3L_SPSoBoRSLhoUsDkr4G9kEb9gmzdNhIe2zPajJMeKDs9es9fx7tqzPXjipUo2G7wm3716wNN9PdpmS7.jpg?quality=96&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,476x476&from=bu&cs=476x0">ИРТСУ</button>
                             <button class="vk-group-btn" data-group-id="182057604" data-group-name="ТКСФ" data-group-avatar="https://sun9-18.userapi.com/s/v1/ig2/1uoKP_b08E8oAtAkwntnFpsgGgqPTE2Nq49TrfNP44PxjPpovVTXrQM8LJKQzSwSz8H_SNO0CoOOCDEGKz6WYgyN.jpg?quality=95&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720,1002x1002&from=bu&cs=1002x0">ТКСФ</button>
                             <button class="vk-group-btn" data-group-id="172789021" data-group-name="СКБ" data-group-avatar="https://sun9-10.userapi.com/s/v1/ig2/1XaaWF7Ed9rv-NGvsxHVXGpd0VEqmWJUVg0w1nOKTFwjoOQhAEoDpePH9opIngmAU3fXWY1KsdAV_iLO6zs5igr_.jpg?quality=95&as=32x18,48x27,72x41,108x61,160x90,240x136,360x203,480x271,540x305,640x361,720x407,1080x610,1280x723,1440x813,2560x1446&from=bu&cs=2560x0">СКБ</button>
                             <button class="vk-group-btn" data-group-id="226229459" data-group-name="ПИШ" data-group-avatar="https://sun9-87.userapi.com/s/v1/ig2/8lnVjVgKB5nhpEMEBJ1E6Z6f2JlyXlCgP9gua0O0inkrNGX11YEwus2_lzdjHbBNZJRTwiNolFRL6m9kwigdTglC.jpg?quality=95&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640&from=bu&cs=640x0">ПИШ</button>
-                        </div>
-                        <h2 style="text-align: center;">Новости</h2>
                     </div>
 
                     <div class="vk-news-header">
