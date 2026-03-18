@@ -42,7 +42,7 @@ a:hover{
     padding: 40px 0 30px; /* Отступы сверху/снизу */
     text-align: center; /* Текст по центру */
     color: #fff; /* Белый текст */
-    background: linear-gradient(135deg, rgba(0,51,153,0.85), rgba(0,30,100,0.85)); /* Синий градиент */
+    background: linear-gradient(135deg, rgba(75, 106, 169, 0.85), rgba(0,30,100,0.85)); /* Синий градиент */
     backdrop-filter: blur(5px); /* Эффект размытия */
     box-shadow: 0 10px 30px rgba(0,0,0,0.4); /* Тень снизу */
 }
