@@ -1,0 +1,28 @@
+{
+  "users": [
+    {"id": 1, "login": "arshinov", "password": "c86dPTP2", "name": "Аршинов Ярослав"},
+    {"id": 2, "login": "babayan", "password": "cFg1B7nj", "name": "Бабаян Арман"},
+    {"id": 3, "login": "beloglazov", "password": "K7Tohl88", "name": "Белоглазов Никита"},
+    {"id": 4, "login": "butenko", "password": "u4YFTc3Z", "name": "Бутенко Егор"},
+    {"id": 5, "login": "gavryushenko", "password": "KgPpzM8C", "name": "Гаврюшенко Сергей"},
+    {"id": 6, "login": "gulevich", "password": "C031AgQR", "name": "Гулевич Юрий"},
+    {"id": 7, "login": "danilov", "password": "W05mHADa", "name": "Данилов Егор"},
+    {"id": 8, "login": "elchaninov", "password": "7tekKHj8", "name": "Ельчанинов Никита", "op": true},
+    {"id": 9, "login": "erohin", "password": "EF8htzKE", "name": "Ерохин Иван"},
+    {"id": 10, "login": "kovalev", "password": "Ce8LiEaZ", "name": "Ковалев Максим"},
+    {"id": 11, "login": "medyantsev", "password": "6jo60cG4", "name": "Медянцев Леонид"},
+    {"id": 12, "login": "mozelskiy", "password": "ekOR18lf", "name": "Можельский Михаил"},
+    {"id": 13, "login": "panasenko", "password": "8SaarAKF", "name": "Панасенко Сергей"},
+    {"id": 14, "login": "pyak", "password": "ESz6kHy5", "name": "Пяк Ярослав"},
+    {"id": 15, "login": "serbakov", "password": "3k6HUyQV", "name": "Сербаков Григорий"},
+    {"id": 16, "login": "suhodubov", "password": "GqbkBUD6", "name": "Суходубов Роман"},
+    {"id": 17, "login": "sidorov", "password": "pCYr6CE7", "name": "Сидоров Михаил"},
+    {"id": 18, "login": "tereshchenko", "password": "c8O3mXVq", "name": "Терещенко Кирилл"},
+    {"id": 19, "login": "trotsenko", "password": "hCMGhZx7", "name": "Троценко Никита", "op": true},
+    {"id": 20, "login": "ulyanov", "password": "ye7O3CY6", "name": "Ульянов Артем"},
+    {"id": 21, "login": "fahmiye", "password": "7IatWoDS", "name": "Фахмие Дэвид", "op": true},
+    {"id": 22, "login": "shestel", "password": "GXUfzd9d", "name": "Шестель Алексей"},
+    {"id": 23, "login": "admin", "password": "aE62fxmk", "name": "Администратор", "op": true},
+    {"id": 24, "login": "test", "password": "test123", "name": "Тестовый пользователь", "op": true}
+  ]
+}

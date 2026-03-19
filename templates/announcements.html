@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="{{ url_for('static', filename='img/header_logo.png') }}" type="image/png">
     <title>Объявления — Портал группы</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='announcements.css') }}">
@@ -19,41 +20,76 @@
                 <a href="{{ url_for('schedule_page') }}">Расписание</a>
                 <a href="{{ url_for('links_page') }}">Ссылки</a>
                 <a href="{{ url_for('announcements_page') }}" class="nav-small">Объявления</a>
+                {% if current_user and current_user.logged_in %}
+                    <a href="{{ url_for('logout') }}" class="nav-user">Выход ({{ current_user.name }})</a>
+                {% endif %}
             </nav>
         </div>
     </header>
 
     <main class="page">
         <div class="page-inner">
-            <div class="card">
-                <!-- Форма добавления объявления -->
+            <!-- Форма добавления объявления - широкий блок сверху -->
+            {% if current_user and current_user.is_op %}
+            <section class="card">
                 <div class="announcement-form">
                     <h2>Добавить объявление</h2>
                     <div id="message"></div>
-                    <input type="text" id="author" placeholder="Ваше имя (или ник)" maxlength="50">
                     <textarea id="text" placeholder="Текст объявления..." maxlength="500"></textarea>
                     <button id="submit-btn" onclick="addAnnouncement()">Добавить объявление</button>
                 </div>
-
-                <!-- Список объявлений -->
-                {% if announcements %}
-                    <h3 style="margin-top: 30px; margin-bottom: 20px; color: #1a1a1a;">Все объявления</h3>
-                    <ul class="announcement-list">
-                        {% for ann in announcements %}
-                            <li class="announcement-item">
-                                <div class="announcement-meta">
-                                    <span class="announcement-author">{{ ann.author }}</span>
-                                    <span class="announcement-date">{{ ann.date }}</span>
-                                </div>
-                                <div class="announcement-text">{{ ann.text }}</div>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p style="color: #868e96; text-align: center; padding: 40px 0;">
-                        Объявлений пока нет. Будьте первым, кто добавит!
-                    </p>
-                {% endif %}
+            </section>
+            {% endif %}
+            
+            <!-- Два блока под формой -->
+            <div class="announcements-split">
+                <!-- Блок всех объявлений -->
+                <section class="card">
+                    <h2>Все объявления</h2>
+                    {% if announcements %}
+                        <ul class="announcement-list">
+                            {% for ann in announcements %}
+                                <li class="announcement-item">
+                                    {% if current_user and current_user.is_op %}
+                                    <button class="star-btn{% if ann.id in important_ids %} active{% endif %}" onclick="toggleImportant({{ ann.id }})" title="Важное">★</button>
+                                    <button class="delete-btn" onclick="deleteAnnouncement({{ ann.id }})" title="Удалить">×</button>
+                                    {% endif %}
+                                    <div class="announcement-meta">
+                                        <span class="announcement-author">{{ ann.author }}</span>
+                                        <span class="announcement-date">{{ ann.date }}</span>
+                                    </div>
+                                    <div class="announcement-text">{{ ann.text }}</div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p style="color: #868e96; text-align: center; padding: 20px 0;">Объявлений пока нет.</p>
+                    {% endif %}
+                </section>
+                
+                <!-- Блок важных объявлений -->
+                <section class="card">
+                    <h2>⭐ Важные объявления</h2>
+                    {% if important_announcements %}
+                        <ul class="announcement-list">
+                            {% for ann in important_announcements %}
+                                <li class="announcement-item announcement-item--important">
+                                    {% if current_user and current_user.is_op %}
+                                    <button class="star-btn active" onclick="toggleImportant({{ ann.id }})" title="Убрать из важных">★</button>
+                                    <button class="delete-btn" onclick="deleteAnnouncement({{ ann.id }})" title="Удалить">×</button>
+                                    {% endif %}
+                                    <div class="announcement-meta">
+                                        <span class="announcement-author">{{ ann.author }}</span>
+                                        <span class="announcement-date">{{ ann.date }}</span>
+                                    </div>
+                                    <div class="announcement-text">{{ ann.text }}</div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p style="color: #868e96; text-align: center; padding: 20px 0;">Важных объявлений нет.</p>
+                    {% endif %}
+                </section>
             </div>
         </div>
     </main>
@@ -65,12 +101,10 @@
     <script>
         async function addAnnouncement() {
             const textInput = document.getElementById('text');
-            const authorInput = document.getElementById('author');
             const messageDiv = document.getElementById('message');
             const submitBtn = document.getElementById('submit-btn');
             
             const text = textInput.value.trim();
-            const author = authorInput.value.trim() || 'Аноним';
             
             if (!text) {
                 messageDiv.innerHTML = '<div class="announcement-message error">Введите текст объявления</div>';
@@ -83,29 +117,64 @@
             try {
                 const response = await fetch('/api/announcements', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ text, author })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
                 });
                 
                 const data = await response.json();
                 
-                if (response.ok) {
+                if (data.success) {
                     messageDiv.innerHTML = '<div class="announcement-message success">Объявление добавлено!</div>';
                     textInput.value = '';
-                    // Перезагрузим страницу через 1 секунду, чтобы показать новое объявление
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000);
+                    setTimeout(() => location.reload(), 1000);
                 } else {
-                    messageDiv.innerHTML = '<div class="announcement-message error">' + (data.error || 'Ошибка при отправке') + '</div>';
+                    messageDiv.innerHTML = '<div class="announcement-message error">' + (data.error || 'Ошибка') + '</div>';
                 }
-            } catch (error) {
-                messageDiv.innerHTML = '<div class="announcement-message error">Ошибка соединения с сервером</div>';
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Добавить объявление';
+            } catch (e) {
+                messageDiv.innerHTML = '<div class="announcement-message error">Ошибка соединения</div>';
+            }
+            
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Добавить объявление';
+        }
+        
+        async function deleteAnnouncement(id) {
+            if (!confirm('Вы уверены, что хотите удалить это объявление?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/announcements/' + id, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.error || 'Ошибка удаления');
+                }
+            } catch (e) {
+                alert('Ошибка соединения');
+            }
+        }
+        
+        async function toggleImportant(id) {
+            try {
+                const response = await fetch('/api/announcements/' + id + '/toggle-important', {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.error || 'Ошибка');
+                }
+            } catch (e) {
+                alert('Ошибка соединения');
             }
         }
     </script>

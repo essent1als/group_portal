@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='img/header_logo.png') }}" type="image/png">
     <title>Портал РТбо1-25</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='announcements.css') }}">
@@ -21,6 +22,9 @@
                 <a href="{{ url_for('schedule_page') }}">Расписание</a>
                 <a href="{{ url_for('links_page') }}">Ссылки</a>
                 <a href="{{ url_for('announcements_page') }}">Объявления</a>
+                {% if current_user and current_user.logged_in %}
+                    <a href="{{ url_for('logout') }}" class="nav-user">Выход ({{ current_user.name }})</a>
+                {% endif %}
             </nav>
         </div>
     </header>

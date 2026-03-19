@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='img/header_logo.png') }}" type="image/png">
+    <title>Логи - Портал РТбо1-25</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .logs-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .logs-container h1 {
+            margin-bottom: 20px;
+        }
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .tab-btn {
+            padding: 12px 24px;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #495057;
+            transition: all 0.2s;
+        }
+        .tab-btn:hover {
+            background: #e9ecef;
+        }
+        .tab-btn.active {
+            background: #0066cc;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .log-table th, .log-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .log-table th {
+            background: #0066cc;
+            color: white;
+            font-weight: bold;
+        }
+        .log-table tr:hover {
+            background: #f5f5f5;
+        }
+        .log-success {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        .log-fail {
+            color: #c62828;
+            font-weight: bold;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: #0066cc;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .back-link:hover {
+            background: #0052a3;
+        }
+        .log-ip {
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <div class="header-logo-row">
+                <img src="{{ url_for('static', filename='img/sfedu.png') }}" alt="Логотип ЮФУ" class="header-logo">
+                <h1>Логи</h1>
+                <img src="{{ url_for('static', filename='img/irtsu.png') }}" alt="ИРТСУ" class="header-logo">
+            </div>
+        </div>
+    </header>
+
+    <main class="page">
+        <div class="page-inner">
+            <div class="logs-container">
+                <a href="{{ url_for('home') }}" class="back-link">← На главную</a>
+                
+                <h1>История действий на сайте</h1>
+                
+                <!-- Вкладки -->
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="showTab('login')">Входы</button>
+                    <button class="tab-btn" onclick="showTab('announcements')">Объявления</button>
+                </div>
+                
+                <!-- Вкладка: Логи входов -->
+                <div id="tab-login" class="tab-content active">
+                    {% if login_logs %}
+                        <table class="log-table">
+                            <thead>
+                                <tr>
+                                    <th>№</th>
+                                    <th>Дата и время</th>
+                                    <th>Логин</th>
+                                    <th>IP адрес</th>
+                                    <th>Устройство</th>
+                                    <th>Статус</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in login_logs|reverse %}
+                                    <tr>
+                                        <td>{{ login_logs|length - loop.index0 }}</td>
+                                        <td>{{ log.timestamp }}</td>
+                                        <td><strong>{{ log.user_login }}</strong></td>
+                                        <td class="log-ip">{{ log.ip }}</td>
+                                        <td>{{ log.user_agent[:50] }}{% if log.user_agent|length > 50 %}...{% endif %}</td>
+                                        <td>
+                                            {% if log.success %}
+                                                <span class="log-success">✓ Успешно</span>
+                                            {% else %}
+                                                <span class="log-fail">✗ Ошибка</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p>Пока нет записей о входах.</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Вкладка: Логи объявлений -->
+                <div id="tab-announcements" class="tab-content">
+                    {% if announcement_logs %}
+                        <table class="log-table">
+                            <thead>
+                                <tr>
+                                    <th>№</th>
+                                    <th>Дата и время</th>
+                                    <th>Пользователь</th>
+                                    <th>Действие</th>
+                                    <th>ID объявления</th>
+                                    <th>Текст</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in announcement_logs|reverse %}
+                                    <tr>
+                                        <td>{{ announcement_logs|length - loop.index0 }}</td>
+                                        <td>{{ log.timestamp }}</td>
+                                        <td><strong>{{ log.user_name }}</strong><br><small>{{ log.user_login }}</small></td>
+                                        <td>
+                                            {% if log.action == 'created' %}
+                                                <span class="log-success">Создано</span>
+                                            {% elif log.action == 'deleted' %}
+                                                <span class="log-fail">Удалено</span>
+                                            {% else %}
+                                                {{ log.action }}
+                                            {% endif %}
+                                        </td>
+                                        <td>#{{ log.announcement_id }}</td>
+                                        <td>{{ log.announcement_text }}{% if log.announcement_text|length >= 100 %}...{% endif %}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p>Пока нет записей об объявлениях.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function showTab(tabName) {
+            // Скрываем все вкладки
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            // Убираем активный класс со всех кнопок
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // Показываем выбранную вкладку
+            document.getElementById('tab-' + tabName).classList.add('active');
+            // Добавляем активный класс кнопке
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

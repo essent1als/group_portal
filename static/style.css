@@ -84,6 +84,10 @@ body{
     background-position: center; /* Центрируем фон */
     background-attachment: fixed; /* Фон не двигается при скролле */
     min-height: 100vh; /* Минимальная высота - весь экран */
+    
+    /* Flexbox для прижатия футера к низу */
+    display: flex;
+    flex-direction: column;
 }
 
 /* Стили для всех ссылок */
@@ -190,11 +194,15 @@ a:hover{
 /* Контейнер страницы */
 .page{
     padding: 40px 0 80px; /* Отступы сверху/снизу */
+    flex: 1; /* Растягивает контент на всё доступное пространство */
+    display: flex;
+    flex-direction: column;
 }
 
 /* Внутренний контейнер страницы */
 .page-inner{
     max-width: 1400px;
+    width: 100%;
     margin: 0 auto;
     padding: 0 20px;
 }
@@ -230,10 +238,25 @@ a:hover{
 
 /* Основная сетка - 3 колонки */
 .grid{
-    display: grid;
-    grid-template-columns: 1.5fr 2fr 1fr; /* слева объявления (шире), по центру контент, справа ссылки */
+    display: flex; /* Используем flex для выравнивания по низу */
     gap: 20px;
-    align-items: start;
+    min-height: 400px; /* Минимальная высота для выравнивания колонок */
+    max-width: 100%;
+    overflow: hidden;
+}
+
+/* Колонки в сетке */
+.grid > * {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Карточки внутри колонок */
+.grid .card {
+    height: 100%; /* Карточки занимают всю высоту колонки */
+    margin-bottom: 0;
 }
 
 /* Левая колонка - объявления */
@@ -241,6 +264,8 @@ a:hover{
     display: flex;
     flex-direction: column;
     gap: 20px;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 /* Центральная колонка */
@@ -252,15 +277,21 @@ a:hover{
 
 /* Правая колонка - ссылки и группа */
 .sidebar{
-    display: grid;
+    display: flex;
+    flex-direction: column;
     gap: 20px;
-    align-self: start;
+    align-self: stretch; /* Растягивает на всю высоту */
 }
 
 /* Адаптивность - переход к компактному виду на маленьких экранах */
 @media (max-width: 1200px) {
     .grid {
-        grid-template-columns: 1fr 1.5fr 1fr;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    .grid > * {
+        flex: 1 1 300px;
+        min-width: 0;
     }
     .page-inner {
         max-width: 100%;
@@ -270,7 +301,11 @@ a:hover{
 
 @media (max-width: 900px) {
     .grid {
-        grid-template-columns: 1fr 2fr 1fr;
+        flex-direction: column;
+    }
+    .grid > * {
+        flex: none;
+        width: 100%;
     }
     .site-header h1 {
         font-size: 1.5rem;
@@ -288,7 +323,6 @@ a:hover{
 
 @media (max-width: 600px) {
     .grid {
-        grid-template-columns: 1fr 2fr 1fr;
         gap: 10px;
     }
     .page-inner {
@@ -852,7 +886,7 @@ a:hover{
    ========================================================================== */
 
 .site-footer{
-    margin-top: 18px;
+    margin-top: auto; /* Прижимает футер к низу */
     padding: 18px 0;
     text-align: center;
     color: rgba(255,255,255,0.72);

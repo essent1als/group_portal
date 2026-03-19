@@ -162,7 +162,7 @@ def parse_modeus_schedule(html_path: str, output_json: str):
 
 
 if __name__ == '__main__':
-    html_file = 'data/modeus_cache/schedule.html'
+    html_file = 'data/schedule.html'
     json_file = 'data/schedule_static.json'
     
     print("=" * 50)

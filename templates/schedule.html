@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='img/header_logo.png') }}" type="image/png">
     <title>Расписание — Портал группы</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='schedule.css') }}">
@@ -20,6 +21,9 @@
                 <a href="{{ url_for('links_page') }}">Ссылки</a>
                 <a href="{{ url_for('schedule_page') }}" class="nav-small">Расписание</a>
                 <a href="{{ url_for('announcements_page') }}">Объявления</a>
+                {% if current_user and current_user.logged_in %}
+                    <a href="{{ url_for('logout') }}" class="nav-user">Выход ({{ current_user.name }})</a>
+                {% endif %}
             </nav>
         </div>
     </header>
@@ -46,7 +50,11 @@
                     <div class="schedule-tabs">
                         <button class="schedule-tab active" onclick="showMode('parsed')" id="mode-parsed">📋 Данные</button>
                         <button class="schedule-tab" onclick="showMode('iframe')" id="mode-iframe">🌐 Modeus</button>
+                        {% if current_user and current_user.is_op %}
                         <button class="schedule-tab" onclick="enableEditMode()" id="mode-edit">✏️ Редактировать</button>
+                        {% else %}
+                        <button class="schedule-tab" onclick="showMode('parsed')" id="mode-view" style="display: none;">📋 Просмотр</button>
+                        {% endif %}
                     </div>
 
                     <!-- Кнопка открытия в Modeus -->
@@ -146,6 +154,7 @@
         const MODEUS_EMBED_URL = "{{ modeus_embed_url }}";
         let scheduleData = {};
         let isEditMode = false;
+        const currentUserIsOp = {{ 'true' if current_user and current_user.is_op else 'false' }};
         
         // Карта времени -> номер пары
         const pairTimes = {
@@ -165,7 +174,11 @@
             
             document.getElementById('mode-iframe').classList.toggle('active', mode === 'iframe');
             document.getElementById('mode-parsed').classList.toggle('active', mode === 'parsed' || mode === 'edit');
-            document.getElementById('mode-edit').classList.toggle('active', mode === 'edit');
+            
+            const editBtn = document.getElementById('mode-edit');
+            if (editBtn) {
+                editBtn.classList.toggle('active', mode === 'edit');
+            }
             
             localStorage.setItem('scheduleMode', mode);
             
@@ -176,6 +189,12 @@
         
         // Переключение режима редактирования (может включать/выключать)
         function enableEditMode() {
+            // Проверка прав доступа
+            if (!currentUserIsOp) {
+                alert('У вас нет прав для редактирования расписания');
+                return;
+            }
+            
             if (isEditMode) {
                 // Выключаем режим редактирования
                 isEditMode = false;
@@ -472,11 +491,14 @@
         
         // Восстановление режима
         const savedMode = localStorage.getItem('scheduleMode') || 'parsed';
-        if (savedMode === 'edit') {
+        // Если сохранён режим редактирования, но пользователь не op, сбрасываем на parsed
+        const modeToRestore = (savedMode === 'edit' && !currentUserIsOp) ? 'parsed' : savedMode;
+        if (modeToRestore === 'edit') {
             isEditMode = true;
-            document.getElementById('save-btn').style.display = 'inline-flex';
+            const saveBtn = document.getElementById('save-btn');
+            if (saveBtn) saveBtn.style.display = 'inline-flex';
         }
-        showMode(savedMode);
+        showMode(modeToRestore);
     </script>
 </body>
 </html>

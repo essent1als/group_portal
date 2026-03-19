@@ -9,7 +9,259 @@ from datetime import datetime
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-change-in-production'  # Для сессий
 
+# Конфигурация времени жизни сессии (30 дней)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
+
 BASE_DIR = Path(__file__).resolve().parent
+
+
+def _log_login(user_login: str, ip_address: str, user_agent: str, success: bool):
+    """Запись входа в лог"""
+    logs_path = BASE_DIR / "data" / "login_logs.json"
+    
+    try:
+        if logs_path.exists():
+            with open(logs_path, encoding="utf-8") as f:
+                data = json.load(f)
+                logs = data.get("logs", [])
+        else:
+            logs = []
+        
+        # Добавляем новую запись
+        new_log = {
+            "id": len(logs) + 1,
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "user_login": user_login,
+            "ip": ip_address,
+            "user_agent": user_agent[:100] if user_agent else "",  # Обрезаем слишком длинные
+            "success": success
+        }
+        logs.append(new_log)
+        
+        # Сохраняем (храним последние 500 записей)
+        logs = logs[-500:]
+        
+        with open(logs_path, "w", encoding="utf-8") as f:
+            json.dump({"logs": logs}, f, ensure_ascii=False, indent=2)
+            
+    except Exception as e:
+        print(f"Error logging login: {e}")
+
+
+def _load_login_logs():
+    """Загрузка логов входов"""
+    logs_path = BASE_DIR / "data" / "login_logs.json"
+    if not logs_path.exists():
+        return []
+    try:
+        with open(logs_path, encoding="utf-8") as f:
+            data = json.load(f)
+            return data.get("logs", [])
+    except Exception as e:
+        print(f"Error loading logs: {e}")
+        return []
+
+
+def _log_announcement(action: str, announcement_text: str = "", announcement_id: int = 0):
+    """Логирование действий с объявлениями"""
+    logs_path = BASE_DIR / "data" / "announcement_logs.json"
+    
+    try:
+        if logs_path.exists():
+            with open(logs_path, encoding="utf-8") as f:
+                data = json.load(f)
+                logs = data.get("logs", [])
+        else:
+            logs = []
+        
+        # Получаем текущего пользователя
+        user_login = session.get("user_login", "unknown")
+        user_name = session.get("user_name", "unknown")
+        
+        new_log = {
+            "id": len(logs) + 1,
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "action": action,
+            "user_login": user_login,
+            "user_name": user_name,
+            "announcement_id": announcement_id,
+            "announcement_text": announcement_text[:100] if announcement_text else ""  # Обрезаем длинный текст
+        }
+        logs.append(new_log)
+        
+        # Сохраняем (храним последние 500 записей)
+        logs = logs[-500:]
+        
+        with open(logs_path, "w", encoding="utf-8") as f:
+            json.dump({"logs": logs}, f, ensure_ascii=False, indent=2)
+            
+    except Exception as e:
+        print(f"Error logging announcement: {e}")
+
+
+def _load_announcement_logs():
+    """Загрузка логов объявлений"""
+    logs_path = BASE_DIR / "data" / "announcement_logs.json"
+    if not logs_path.exists():
+        return []
+    try:
+        with open(logs_path, encoding="utf-8") as f:
+            data = json.load(f)
+            return data.get("logs", [])
+    except Exception as e:
+        print(f"Error loading announcement logs: {e}")
+        return []
+
+
+def _get_important_ids():
+    """Получить ID важных объявлений"""
+    path = BASE_DIR / "data" / "important_announcements.json"
+    if not path.exists():
+        return []
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+            return data.get("important_ids", [])
+    except Exception as e:
+        print(f"Error loading important announcements: {e}")
+        return []
+
+
+def _set_important_ids(ids: list):
+    """Сохранить ID важных объявлений"""
+    path = BASE_DIR / "data" / "important_announcements.json"
+    try:
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump({"important_ids": ids}, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"Error saving important announcements: {e}")
+
+
+def _load_users():
+    """Загрузка пользователей из файла"""
+    users_path = BASE_DIR / "data" / "users.json"
+    if not users_path.exists():
+        return []
+    try:
+        with open(users_path, encoding="utf-8") as f:
+            data = json.load(f)
+            return data.get("users", [])
+    except Exception as e:
+        print(f"Error loading users: {e}")
+        return []
+
+
+def _authenticate_user(login: str, password: str):
+    """Проверка логина и пароля"""
+    users = _load_users()
+    for user in users:
+        if user.get("login") == login and user.get("password") == password:
+            return user
+    return None
+
+
+def _get_current_user():
+    """Получить текущего авторизованного пользователя"""
+    if session.get("logged_in"):
+        login = session.get("user_login", "")
+        users_data = _load_json("data/users.json", {"users": []})
+        user = next((u for u in users_data.get("users", []) if u.get("login") == login), None)
+        is_op = user.get("op", False) if user else False
+        return {
+            "logged_in": True,
+            "name": session.get("user_name", ""),
+            "login": login,
+            "is_op": is_op
+        }
+    return {"logged_in": False, "name": "", "login": "", "is_op": False}
+
+
+# ==================== Аутентификация ====================
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    """Страница входа и обработка входа"""
+    error = None
+    
+    # Если пользователь уже вошёл, показываем информацию
+    if session.get("logged_in"):
+        return render_template("login.html", 
+                             current_user=_get_current_user())
+    
+    if request.method == "POST":
+        login_input = request.form.get("login", "").strip()
+        password = request.form.get("password", "")
+        remember = request.form.get("remember")
+        
+        # Получаем IP и User-Agent
+        ip_address = request.remote_addr or request.headers.get('X-Forwarded-For', 'unknown')
+        user_agent = request.headers.get('User-Agent', '')
+        
+        user = _authenticate_user(login_input, password)
+        
+        if user:
+            # Успешный вход - записываем в лог
+            _log_login(login_input, ip_address, user_agent, True)
+            
+            # Успешный вход
+            session["logged_in"] = True
+            session["user_id"] = user.get("id")
+            session["user_login"] = user.get("login")
+            session["user_name"] = user.get("name")
+            
+            # Если выбрано "Запомнить меня" - делаем сессию постоянной на 30 дней
+            if remember:
+                session.permanent = True
+                session.modified = True
+            
+            # Перенаправляем на главную страницу
+            return redirect(url_for("home"))
+        else:
+            # Неудачный вход - тоже записываем в лог
+            _log_login(login_input, ip_address, user_agent, False)
+            error = "Неверный логин или пароль"
+    
+    return render_template("login.html", 
+                         current_user=_get_current_user(),
+                         error=error)
+
+
+@app.route("/logout")
+def logout():
+    """Выход из системы"""
+    session.pop("logged_in", None)
+    session.pop("user_id", None)
+    session.pop("user_login", None)
+    session.pop("user_name", None)
+    return redirect(url_for("login"))
+
+
+@app.route("/admin/logs")
+def admin_logs():
+    """Просмотр логов (только для админа)"""
+    # Проверка авторизации
+    if not _require_auth():
+        return redirect(url_for("login"))
+    
+    # Проверка что это админ (по логину)
+    user_login = session.get("user_login", "")
+    if user_login != "admin":
+        return redirect(url_for("home"))
+    
+    login_logs = _load_login_logs()
+    announcement_logs = _load_announcement_logs()
+    
+    return render_template(
+        "admin-logs.html",
+        login_logs=login_logs,
+        announcement_logs=announcement_logs,
+        current_user=_get_current_user()
+    )
+
+
+def _require_auth():
+    """Проверка авторизации - возвращает True если пользователь авторизован"""
+    return session.get("logged_in", False)
 
 # Конфигурация Modeus
 MODEUS_BASE_URL = "https://sfedu.modeus.org"
@@ -108,6 +360,10 @@ def _get_today_lessons_from_static(static_schedule):
 
 @app.route("/")
 def home():
+    # Проверка авторизации
+    if not _require_auth():
+        return redirect(url_for("login"))
+    
     full_schedule = _load_json("data/schedule.json", [])
     today_schedule = _get_today_schedule(full_schedule)
     
@@ -134,11 +390,17 @@ def home():
         vk_config=_load_json("data/config.json", {"vk_group_id": 66692771, "vk_widget_width": "100%"}),
         modeus_url=modeus_url,
         modeus_embed_url=modeus_embed,
+        current_user=_get_current_user(),
+        important_ids=_get_important_ids(),
     )
 
 
 @app.route("/schedule")
 def schedule_page():
+    # Проверка авторизации
+    if not _require_auth():
+        return redirect(url_for("login"))
+    
     config = _load_json("data/config.json", {})
     modeus_url = config.get("modeus_url", "https://sfedu.modeus.org")
     modeus_embed = config.get("modeus_embed_url", "https://sfedu.modeus.org/schedule")
@@ -169,29 +431,78 @@ def schedule_page():
         static_schedule=static_schedule,
         modeus_logged_in=modeus_logged_in,
         modeus_username=modeus_username,
-        modeus_schedule=modeus_schedule
+        modeus_schedule=modeus_schedule,
+        current_user=_get_current_user(),
     )
 
 
 @app.route("/links")
 def links_page():
+    # Проверка авторизации
+    if not _require_auth():
+        return redirect(url_for("login"))
+    
     user_agent = request.headers.get('User-Agent', '')
     is_mobile = is_mobile_device(user_agent)
     template = "mobile-links.html" if is_mobile else "links.html"
-    return render_template(template, links=_load_json("data/links.json", []))
+    return render_template(template, 
+                          links=_load_json("data/links.json", []),
+                          current_user=_get_current_user())
 
 
 @app.route("/announcements")
 def announcements_page():
+    # Проверка авторизации
+    if not _require_auth():
+        return redirect(url_for("login"))
+    
     user_agent = request.headers.get('User-Agent', '')
     is_mobile = is_mobile_device(user_agent)
     template = "mobile-announcements.html" if is_mobile else "announcements.html"
-    return render_template(template, announcements=_load_json("data/announcements.json", []))
+    
+    announcements = _load_json("data/announcements.json", [])
+    important_ids = _get_important_ids()
+    # Преобразуем важные ID в строки для корректного сравнения
+    important_ids_str = [str(id) for id in important_ids]
+    
+    # Разделяем на важные и обычные
+    important_announcements = [a for a in announcements if str(a.get("id")) in important_ids_str]
+    normal_announcements = [a for a in announcements if str(a.get("id")) not in important_ids_str]
+    
+    return render_template(template, 
+                          announcements=normal_announcements,
+                          important_announcements=important_announcements,
+                          important_ids=important_ids,
+                          current_user=_get_current_user())
+
+
+@app.route("/api/announcements/<int:announcement_id>/toggle-important", methods=["POST"])
+def toggle_important_announcement(announcement_id):
+    """Переключение важности объявления"""
+    # Проверка авторизации
+    if not _require_auth():
+        return jsonify({"error": "Требуется авторизация"}), 401
+    
+    important_ids = _get_important_ids()
+    # Преобразуем ID в строку для корректного сравнения
+    announcement_id_str = str(announcement_id)
+    important_ids_str = [str(id) for id in important_ids]
+    
+    if announcement_id_str in important_ids_str:
+        important_ids_str.remove(announcement_id_str)
+    else:
+        important_ids_str.append(announcement_id_str)
+    
+    # Преобразуем обратно в числа для сохранения
+    important_ids = [int(id_str) for id_str in important_ids_str]
+    _set_important_ids(important_ids)
+    
+    return jsonify({"success": True, "important": announcement_id_str in important_ids_str})
 
 
 @app.errorhandler(404)
 def not_found(e):
-    return render_template("index.html", schedule=[], links=[], announcements=[], group=[]), 404
+    return render_template("index.html", schedule=[], links=[], announcements=[], group=[], current_user=_get_current_user()), 404
 
 
 @app.route("/api/vk-news")
@@ -270,27 +581,33 @@ def vk_news():
 @app.route("/api/announcements", methods=["POST"])
 def add_announcement():
     """Добавление нового объявления"""
+    # Проверка авторизации
+    if not _require_auth():
+        return jsonify({"error": "Требуется авторизация"}), 401
+    
     data = request.get_json()
     
     if not data or not data.get("text"):
         return jsonify({"error": "Текст объявления обязателен"}), 400
     
     text = data.get("text").strip()
-    author = data.get("author", "Аноним").strip() or "Аноним"
     
     if not text:
         return jsonify({"error": "Текст объявления не может быть пустым"}), 400
     
+    # Получаем имя автора из сессии
+    author = session.get("user_name", "Аноним")
+    
     # Загружаем текущие объявления
     announcements = _load_json("data/announcements.json", [])
     
-    # Создаём новое объявление
+    # Создаём новое объявление с датой и временем
     new_id = max([a.get("id", 0) for a in announcements], default=0) + 1
     new_announcement = {
         "id": new_id,
         "text": text,
         "author": author,
-        "date": datetime.now().strftime("%Y-%m-%d")
+        "date": datetime.now().strftime("%Y-%m-%d %H:%M")
     }
     
     # Добавляем в начало списка
@@ -301,7 +618,40 @@ def add_announcement():
     with open(path, "w", encoding="utf-8") as f:
         json.dump(announcements, f, ensure_ascii=False, indent=2)
     
+    # Логируем действие
+    _log_announcement("created", text, new_id)
+    
     return jsonify({"success": True, "announcement": new_announcement})
+
+
+@app.route("/api/announcements/<int:announcement_id>", methods=["DELETE"])
+def delete_announcement(announcement_id):
+    """Удаление объявления"""
+    # Проверка авторизации
+    if not _require_auth():
+        return jsonify({"error": "Требуется авторизация"}), 401
+    
+    # Загружаем текущие объявления
+    announcements = _load_json("data/announcements.json", [])
+    
+    # Находим объявление для логирования
+    announcement_text = ""
+    original_count = len(announcements)
+    # Преобразуем announcement_id в строку для корректного сравнения с ID в JSON
+    announcements = [a for a in announcements if str(a.get("id")) != str(announcement_id)]
+    
+    if len(announcements) == original_count:
+        return jsonify({"error": "Объявление не найдено"}), 404
+    
+    # Логируем удаление
+    _log_announcement("deleted", announcement_text, announcement_id)
+    
+    # Сохраняем
+    path = _resolve_data_path("data/announcements.json")
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(announcements, f, ensure_ascii=False, indent=2)
+    
+    return jsonify({"success": True})
 
 
 # ==================== Modeus (отключено) ====================

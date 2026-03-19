@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="{{ url_for('static', filename='img/header_logo.png') }}" type="image/png">
     <title>Портал РТбо1-25</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='announcements.css') }}">
@@ -22,6 +23,12 @@
                 {% if group %}
                     <a href="#group" class="nav-small">Список группы</a>
                 {% endif %}
+                {% if current_user and current_user.logged_in %}
+                    {% if current_user.login == 'admin' %}
+                        <a href="{{ url_for('admin_logs') }}" class="nav-small">Логи</a>
+                    {% endif %}
+                    <a href="{{ url_for('logout') }}" class="nav-user">Выход ({{ current_user.name }})</a>
+                {% endif %}
             </nav>
         </div>
     </header>
@@ -31,12 +38,15 @@
             <div class="grid">
                 <!-- Левая колонка - объявления -->
                 <aside class="left-sidebar">
-                    <section class="card">
+                    <section class="card card--announcements">
                         <h2>Объявления</h2>
                         {% if announcements %}
-                            <ul class="announcement-list">
+                            <ul class="announcement-list announcement-list--scrollable">
                                 {% for ann in announcements[:5] %}
-                                    <li class="announcement-item">
+                                    <li class="announcement-item {% if ann.id in important_ids %}announcement-item--important{% endif %}">
+                                        {% if ann.id in important_ids %}
+                                            <span class="announcement-badge">⭐ Важно</span>
+                                        {% endif %}
                                         <div class="announcement-meta">
                                             <span class="announcement-author">{{ ann.author }}</span>
                                             <span> · {{ ann.date }}</span>
@@ -51,6 +61,12 @@
                         {% else %}
                             <p class="home-announcements-empty">Объявлений пока нет</p>
                         {% endif %}
+                    </section>
+                    
+                    <!-- Блок расписание -->
+                    <section class="card card--schedule-mini">
+                        <h2>📗 Домашка</h2>
+                        <p style="color: #666; font-size: 14px;">Домашка скоро появится</p>
                     </section>
                 </aside>
 
@@ -165,7 +181,15 @@
                                 const weekData = data['week_1'];
                                 const dayData = weekData ? weekData[todayDayName] : null;
                                 if (dayData && dayData.lessons && dayData.lessons.length > 0) {
-                                    const lessons = dayData.lessons;
+                                    let lessons = dayData.lessons;
+                                    
+                                    // Сортируем уроки по номеру пары
+                                    lessons.sort((a, b) => {
+                                        const numA = getPairNumber(a.time) || 0;
+                                        const numB = getPairNumber(b.time) || 0;
+                                        return numA - numB;
+                                    });
+                                    
                                     const dayDate = dayData.date || '';
                                     
                                     // Добавляем дату
@@ -386,3 +410,4 @@
     </script>
 </body>
 </html>
+

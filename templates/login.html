@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='img/header_logo.png') }}" type="image/png">
+    <title>Вход - Портал РТбо1-25</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 30px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .login-container h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #0066cc;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #0052a3;
+        }
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .user-info {
+            text-align: center;
+            padding: 20px;
+            background: #e3f2fd;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .logout-link {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #666;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .logout-link:hover {
+            background: #444;
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <div class="header-logo-row">
+                <img src="{{ url_for('static', filename='img/sfedu.png') }}" alt="Логотип ЮФУ" class="header-logo">
+                <h1>Портал РТбо1-25</h1>
+                <img src="{{ url_for('static', filename='img/irtsu.png') }}" alt="ИРТСУ" class="header-logo">
+            </div>
+        </div>
+    </header>
+
+    <main class="page">
+        <div class="page-inner">
+            <div class="login-container">
+                {% if current_user.logged_in %}
+                    <div class="user-info">
+                        <h2>Вы уже вошли в систему</h2>
+                        <p>Добро пожаловать, <strong>{{ current_user.name }}</strong>!</p>
+                        <a href="{{ url_for('home') }}" class="btn" style="display: inline-block; width: auto; padding: 10px 20px; text-decoration: none;">На главную</a>
+                        <a href="{{ url_for('logout') }}" class="logout-link">Выйти</a>
+                    </div>
+                {% else %}
+                    <h1>Вход в систему</h1>
+                    
+                    {% if error %}
+                        <div class="error-message">{{ error }}</div>
+                    {% endif %}
+                    
+                    <form method="POST" action="{{ url_for('login') }}">
+                        <div class="form-group">
+                            <label for="login">Логин</label>
+                            <input type="text" id="login" name="login" required autofocus>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Пароль</label>
+                            <input type="password" id="password" name="password" required>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" name="remember" style="width: auto; margin: 0;"> Запомнить меня на 30 дней
+                            </label>
+                        </div>
+                        <button type="submit" class="btn">Войти</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+</body>
+</html>
