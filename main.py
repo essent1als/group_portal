@@ -368,7 +368,7 @@ def home():
     today_schedule = _get_today_schedule(full_schedule)
     
     # Загружаем статическое расписание для мобильных
-    static_schedule = _load_json("data/schedule_static.json", {})
+    static_schedule = _load_json("data/modeus/schedule_static.json", {})
     today_lessons = _get_today_lessons_from_static(static_schedule)
     
     config = _load_json("data/config.json", {})
@@ -410,7 +410,7 @@ def schedule_page():
     template = "mobile-schedule.html" if is_mobile else "schedule.html"
     
     # Загружаем статическое расписание
-    static_schedule = _load_json("data/schedule_static.json", {})
+    static_schedule = _load_json("data/modeus/schedule_static.json", {})
     
     # Данные об авторизации
     modeus_logged_in = session.get('modeus_logged_in', False)
@@ -690,7 +690,7 @@ def save_schedule():
             return jsonify({"success": False, "error": "Нет данных"})
         
         # Сохраняем в файл schedule_static.json
-        schedule_path = BASE_DIR / "data" / "schedule_static.json"
+        schedule_path = BASE_DIR / "data" / "modeus" / "schedule_static.json"
         
         with open(schedule_path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
@@ -704,7 +704,7 @@ def save_schedule():
 @app.route("/data/schedule_static.json")
 def serve_schedule_json():
     """Отдача файла расписания"""
-    return send_from_directory(BASE_DIR / "data", "schedule_static.json")
+    return send_from_directory(BASE_DIR / "data" / "modeus", "schedule_static.json")
 
 
 def _get_modeus_schedule_data():
@@ -884,7 +884,7 @@ def fetch_modeus_schedule_with_auth():
                     parsed = _parse_modeus_schedule(schedule_data)
                     
                     # Сохраняем
-                    schedule_path = BASE_DIR / "data" / "schedule_static.json"
+                    schedule_path = BASE_DIR / "data" / "modeus" / "schedule_static.json"
                     with open(schedule_path, "w", encoding="utf-8") as f:
                         json.dump(parsed, f, ensure_ascii=False, indent=2)
                     
